@@ -1,11 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
     <link rel="stylesheet" href="./styles.css">
-    
+    <title>Letter Clicker</title>
 </head>
 <body>
     <div>
@@ -20,30 +19,70 @@
         <div class="blob"></div>
         <div class="blob"></div>
     </div>
-
-    <div class="UiContainer">
-        <div class="upperZonne">
-            <div class="Stats">
-                <div id=""></div>
-            </div>
-            <input type="range" name="volume" id="VolumeSettings">
-            <select id="langChange" name="languages">
-                <option value="ENG">English</option>
-                <option value="RU">Русский</option>
-            </select>
-        </div>
-        <div class="middleZone">
-            <div id="upgradeZone"></div>
-            <div id="letersZone"></div>
-            <div id="upgradeZone"></div>
-        </div>
-        <div class="bottomZone">
-            <div id="level">
-                <div id="zalivka">
-                    <div id="levelText">Level 1</div>
+    <div id="UiConteiner">
+        <div id="upperZone">
+            <div id="soundSettings">
+                <div id="toggleSound" class="tglVolume">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" role="img" aria-label="Громкость: полный звук" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="3 9 9 9 14 4 14 20 9 15 3 15" />
+                        <path d="M16.5 8.5a4 4 0 0 1 0 7" />
+                        <path d="M19 6a7 7 0 0 1 0 12" />
+                    </svg>
+                    <svg class="hidden" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="3 9 9 9 13 5 13 19 9 15 3 15"></polygon>
+                        <line x1="16" y1="8" x2="22" y2="16"></line>
+                        <line x1="22" y1="8" x2="16" y2="16"></line>
+                    </svg>
+                    <input id="soundInput" class="volume" type="range" min="0" max="100">
+                </div>
+                <div id="toggleMusic" class="tglVolume">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" role="img" aria-label="Музыкальная нота" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 18V5l12-2v15" />
+                        <circle cx="6" cy="18" r="3" />
+                        <circle cx="18" cy="16" r="3" />
+                    </svg>
+                    <svg class="hidden" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" role="img" aria-label="Музыка выключена" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 18V5l12-2v15" />
+                        <circle cx="6" cy="18" r="3" />
+                        <circle cx="18" cy="16" r="3" />
+                        <line x1="7" y1="2" x2="22" y2="22" />
+                        <line x1="23" y1="2" x2="3" y2="22" />
+                    </svg>
+                    <input id="musicInput" class="volume" type="range" min="0" max="100">
                 </div>
             </div>
+            <div id="dispData">
+                <div id="currencyValue">
+                    <img src="../assets/ValueLogo.png">
+                    <span>0</span>
+                </div>
+            </div>
+            <div id="changeLanguage">
+                <select id="langChange" name="languages">
+                    <option value="ENG">English</option>
+                    <option value="RU">Русский</option>
+                    <option value="UA">Українська</option>
+                </select>
+            </div>
         </div>
+        
+        <div id="middleZone">
+            <div id="upgradeZone" class="boosts">
+
+            </div>
+            <div id="lettersZone"></div>
+            <div id="upgradeZone2" class="boosts">
+
+            </div>
+        </div>
+        <div id="bottomZone">
+            <div class="level-text" id="levelText">Level: 1 (0%)</div>
+            <div class="level-container">
+                <div class="level-fill" id="levelFill"></div>
+            </div>
+        </div>
+        
     </div>
 </body>
+<script src="../js/Ui.js"></script>
 </html>
