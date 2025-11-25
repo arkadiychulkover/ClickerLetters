@@ -19,13 +19,24 @@
         <div class="blob"></div>
         <div class="blob"></div>
     </div>
-
+<!-- dsf -->
     <div class="UiContainer">
         <div class="upperZonne">
-            <div class="Stats">
-                <div id=""></div>
+
+            <div class="volumeContainer">
+                <svg xmlns="http://www.w3.org/2000/svg" class="musicImg" width="48" height="48" viewBox="0 0 24 24" role="img" aria-label="Музыкальная нота" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 18V5l12-2v15" />
+                        <circle cx="6" cy="18" r="3" />
+                        <circle cx="18" cy="16" r="3" />
+                </svg>
+                <input type="range" name="volume" id="VolumeSettings">
             </div>
-            <input type="range" name="volume" id="VolumeSettings">
+
+            <div class="MoneyContainer">
+                <img src="../assets/ValueLogo.png" class="coinImg">
+                <h3 class="curencyAmount">0</h3>
+            </div>
+
             <select id="langChange" name="languages">
                 <option value="ENG">English</option>
                 <option value="RU">Русский</option>
@@ -33,9 +44,41 @@
         </div>
 
         <div class="middleZone">
-            <div id="upgradeZoneLeft"></div>
+            <div id="upgradeZoneLeft">
+                <div class="upgradeControler">
+                    <img src="../assets/ValLogoPluss.png" alt="" class="upgradeImg">
+                    <p class="upgradeLvl">0</p>
+                </div>
+
+                <div class="upgradeControler">
+                    <img src="../assets/xp.png" alt="" class="upgradeImg">
+                    <p class="upgradeLvl">0</p>
+                </div>
+                
+                <div class="upgradeControler">
+                    <img src="../assets/click.png" alt="" class="upgradeImg">
+                    <p class="upgradeLvl">0</p>
+                </div>
+            </div>
+
             <div id="letersZone"></div>
-            <div id="upgradeZoneRight"></div>
+
+            <div id="upgradeZoneRight">
+                <div class="upgradeControler">
+                    <img src="https://cdn-icons-png.flaticon.com/512/6604/6604851.png" alt="" class="upgradeImg">
+                    <p class="upgradeLvl">0</p>
+                </div>
+
+                <div class="upgradeControler">
+                    <img src="https://cdn-icons-png.flaticon.com/512/179/179349.png" alt="" class="upgradeImg">
+                    <p class="upgradeLvl">0</p>
+                </div>
+
+                <div class="upgradeControler">
+                    <img src="../assets/ampersand.png" alt="" class="upgradeImg">
+                    <p class="upgradeLvl">0</p>
+                </div>
+            </div>
         </div>
 
         <div class="bottomZone">
