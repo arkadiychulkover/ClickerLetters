@@ -53,9 +53,9 @@ export function ChangeMoney(number) {
     }
     return false;
 }
-export function ChangeLoc(number){
-    if(number in locations){
-        indexofLoc = number;
+export function ChangeLoc(index){
+    if(!index in locations){
+        indexofLoc = index;
         curtLocation = locations[number];
         ChangeValue("curLocation",curtLocation);
         return true;
@@ -64,7 +64,7 @@ export function ChangeLoc(number){
     }
 }
 export function ChangeMusic(index){
-    if(number in musics){
+    if(!index in musics){
         indexofMus = index;
         curMusic = musics[indexofMus];
         ChangeValue("curMusic",curMusic);
