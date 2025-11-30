@@ -1,4 +1,4 @@
-"use strict"
+"use strict";
 
 import { 
     GetDict, 
@@ -6,7 +6,7 @@ import {
     GetMoney, 
     GetExpCof, 
     GetMoneyCof, 
-    GetTimeRange ,
+    GetTimeRange,
     GetExpLvl,
     ChangeExpLvl,
     GetIndexLocation,
@@ -24,7 +24,7 @@ import {
     ChangeAmountOfValute
 } from "./Ui.js";
 
-let curentKeys = []; 
+let curentKeys = [];
 let currentLettersDivs = [];
 let currentLettersDivsClases = [];
 let lettersZone = document.getElementById("lettersZone");
@@ -32,10 +32,10 @@ let lettersZone = document.getElementById("lettersZone");
 document.addEventListener('keydown', async (e) => 
 {
     let key = e.key.toLowerCase();
-    if(!ValidateKey(key)) return;
+    if (!ValidateKey(key)) return;
 
     let divLet = GetLetObjFromName(key);
-    if(divLet == null) return;
+    if (!divLet) return;
 
     divLet.classList.add("correct");
     await sleep(200);
@@ -50,37 +50,38 @@ document.addEventListener('keydown', async (e) =>
 
     let moneyCof = GetMoneyCof();
     let expCof = GetExpCof();
-    let money = GetMoney();
+
+    let moneyToAdd = Math.floor(1 * moneyCof);
+    let expToAdd = Math.floor(1 * expCof);
+
     let expLvl = GetExpLvl();
+    let newExp = expLvl + expToAdd;
 
-    let levelOfMoneyUpgrade = GetLevelOfUpgrade("moneyUpgrade");
-    let levelOfExpUpgrade = GetLevelOfUpgrade("expUpgrade");
+    ChangeMoney(GetMoney() + moneyToAdd);
+    ChangeExpLvl(newExp);
 
-    let moneyToAdd = Math.floor(1 * moneyCof * levelOfMoneyUpgrade);
-    let expToAdd = Math.floor(1 * expCof * levelOfExpUpgrade);
+    ChangeAmountOfValute(GetMoney());
 
-    let newLvlExp = expLvl + expToAdd;
+    let indexLocation = GetIndexLocation();
 
-    ChangeMoney(money + moneyToAdd);
-    ChangeExpLvl(expLvl + expToAdd);
+    let oldLvl = Math.floor(expLvl / (100 * indexLocation));
+    let newLvl = Math.floor(newExp / (100 * indexLocation));
 
-    ChangeAmountOfValute(money + moneyToAdd);
-
-    if (Math.floor(expLvl/100) < Math.floor((expLvl + expToAdd)/100))
+    if (newLvl > oldLvl)
     {
-        let indexLocation = GetIndexLocation();
-        let indexMusic = GetIndexMus(); 
+        let indexMusic = GetIndexMus();
 
-        ChangeLoc((indexLocation + 1));
-        ChangeMusic((indexMusic + 1));
+        ChangeLoc(indexLocation + 1);
+        ChangeMusic(indexMusic + 1);
 
-        ChangeBackgroundMusic((indexMusic + 1));
-        ChangeBacgroundImg((indexLocation + 1));
+        ChangeBackgroundMusic(indexMusic + 1);
+        ChangeBacgroundImg(indexLocation + 1);
 
-        let percent = newLvlExp - Math.floor(newLvlExp / 100) * 100;
-        ChangeLevelOfVacabuular(Math.floor(newLvlExp / 100));
-        ChangeShkalaOfVacabular(percent);
+        ChangeLevelOfVacabuular(newLvl);
     }
+    
+    let percent = newExp % 100;    
+    ChangeShkalaOfVacabular(percent);
 
     console.log(`You earned ${moneyToAdd} money and ${expToAdd} exp!`);
 });
@@ -104,9 +105,7 @@ function DeletLetFromArrays(key)
 function GetLetObjFromName(name)
 {
     let index = currentLettersDivsClases.indexOf(name);
-    if(index !== -1)
-        return currentLettersDivs[index];
-    return null;
+    return index !== -1 ? currentLettersDivs[index] : null;
 }
 
 async function SpawnLetter(letter)
