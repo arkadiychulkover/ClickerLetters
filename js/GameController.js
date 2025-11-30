@@ -37,7 +37,7 @@ document.addEventListener('keydown', async (e) =>
     let divLet = GetLetObjFromName(key);
     if (!divLet) return;
 
-    divLet.classList.add("correct");
+    divLet.classList.add("correct");//тупо зеленая
     await sleep(200);
 
     if (divLet.parentNode)
@@ -45,8 +45,8 @@ document.addEventListener('keydown', async (e) =>
 
     DeletLetFromArrays(key);
 
-    let keyIndex = curentKeys.indexOf(key);
-    if (keyIndex !== -1) curentKeys.splice(keyIndex, 1);
+    let keyIdx = curentKeys.indexOf(key);
+    if (keyIdx !== -1) curentKeys.splice(keyIdx, 1);
 
     let moneyCof = GetMoneyCof();
     let expCof = GetExpCof();
@@ -54,37 +54,41 @@ document.addEventListener('keydown', async (e) =>
     let moneyToAdd = Math.floor(1 * moneyCof);
     let expToAdd = Math.floor(1 * expCof);
 
-    let expLvl = GetExpLvl();
-    let newExp = expLvl + expToAdd;
+    let oldExp = GetExpLvl();
+    let newExp = oldExp + expToAdd;
 
-    ChangeMoney(GetMoney() + moneyToAdd);
+    let newMoney = GetMoney() + moneyToAdd;
+    ChangeMoney(newMoney);
+    ChangeAmountOfValute(newMoney);
+
     ChangeExpLvl(newExp);
 
-    ChangeAmountOfValute(GetMoney());
+    let locationIndex = GetIndexLocation();
 
-    let indexLocation = GetIndexLocation();
-
-    let oldLvl = Math.floor(expLvl / (100 * indexLocation));
-    let newLvl = Math.floor(newExp / (100 * indexLocation));
+    let oldLvl = Math.floor(oldExp / 100);
+    let newLvl = Math.floor(newExp / 100);
 
     if (newLvl > oldLvl)
     {
-        let indexMusic = GetIndexMus();
-
-        ChangeLoc(indexLocation + 1);
-        ChangeMusic(indexMusic + 1);
-
-        ChangeBackgroundMusic(indexMusic + 1);
-        ChangeBacgroundImg(indexLocation + 1);
-
         ChangeLevelOfVacabuular(newLvl);
+
+        if (newLvl > locationIndex && locationIndex < 5)
+        {
+            ChangeLoc(newLvl);
+            ChangeBacgroundImg(newLvl);
+
+            let indexMusic = GetIndexMus();
+            ChangeMusic(indexMusic + 1);
+            ChangeBackgroundMusic(indexMusic + 1);
+        }
     }
-    
-    let percent = newExp % 100;    
+
+    let percent = newExp % 100;
     ChangeShkalaOfVacabular(percent);
 
-    console.log(`You earned ${moneyToAdd} money and ${expToAdd} exp!`);
+    console.log(`+${moneyToAdd} money, +${expToAdd} exp`);
 });
+
 
 function ValidateKey(key)
 {
@@ -112,7 +116,7 @@ async function SpawnLetter(letter)
 {
     let letterEl = document.createElement("div");
 
-    letterEl.classList.add("letter", letter);
+    letterEl.classList.add("letter", letter); //анимауия 3 секунды 1 проявление 2 ничего 3 удаление медленное
     letterEl.textContent = letter;
 
     currentLettersDivs.push(letterEl);
@@ -133,8 +137,8 @@ async function DeleteLetter(letterEl, key)
     lettersZone.removeChild(letterEl);
     DeletLetFromArrays(key);
 
-    let index = curentKeys.indexOf(key);
-    if (index !== -1) curentKeys.splice(index, 1);
+    let i = curentKeys.indexOf(key);
+    if (i !== -1) curentKeys.splice(i, 1);
 }
 
 function GetRandomLetter()
@@ -142,6 +146,12 @@ function GetRandomLetter()
     let dict = GetDict();
     let randInd = Math.floor(Math.random() * dict.length);
     return dict[randInd];
+}
+
+function GetRandomLetterFromCurrent()
+{
+    if (curentKeys.length === 0) return null;
+    return curentKeys[Math.floor(Math.random() * curentKeys.length)];
 }
 
 function sleep(ms) {
@@ -153,8 +163,38 @@ async function SpawnLettersInTimer()
     let letter = GetRandomLetter();
     SpawnLetter(letter);
 
-    let delay = Math.random() * GetTimeRange();
+    let baseDelay = 5000;
+    let level = GetExpLvl();
+
+    let speedFactor = 1 + (level / 5);
+    let delay = Math.max(200, baseDelay / speedFactor);
+
+    delay = delay * (0.6 + Math.random() * 0.8);
+
     setTimeout(SpawnLettersInTimer, delay);
 }
 
+async function PasiveClickLetter()
+{
+    let key = GetRandomLetterFromCurrent();
+    if (key) MakeVirtualKeyDown(key);
+
+    let upgradeSpeed = GetLevelOfUpgrade("TagOfPasiveUpgrade");
+    let delay = Math.max(0.3, Math.random() * upgradeSpeed);
+
+    setTimeout(PasiveClickLetter, delay * 1000);
+}
+
+function MakeVirtualKeyDown(key)
+{
+    let event = new KeyboardEvent("keydown", {
+        key: key,
+        code: `Key${key.toUpperCase()}`,
+        bubbles: true
+    });
+
+    document.dispatchEvent(event);
+}
+
 SpawnLettersInTimer();
+PasiveClickLetter();
