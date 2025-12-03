@@ -46,6 +46,3 @@ export function ClearStorage() {
     localStorage.clear();
     return true;
 }
-AddValue("player", { score: 100, coins: 50 });
-
-console.log(GetValue("player"));
