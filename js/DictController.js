@@ -1,4 +1,16 @@
-import { ChangeValue, GetValue,AddValue } from "./LocalStorageController.js";
+import { ChangeValue, GetValue, AddValue } from "./LocalStorageController.js";
+
+// Функция для проверки и инициализации значения в хранилище
+function ValidateStorage(key, defaultValue) {
+    let value = GetValue(key);
+    if (value === null) {
+        AddValue(key, defaultValue);
+        return defaultValue;
+    }
+    return value;
+}
+
+// Инициализация переменных
 let letters = ValidateStorage("letters", []);
 let musics = ValidateStorage("musics", ["1","2","3"]);
 let locations = ValidateStorage("locations", ["1","2","3"]);
@@ -10,14 +22,8 @@ let indexofLoc = ValidateStorage("indexofLoc", 0);
 let expLvl = ValidateStorage("expLvl", 0);
 let curMusic = ValidateStorage("curMusic", musics[0]);
 let curLocation = ValidateStorage("curLocation", locations[0]);
-function ValidateStorage(key, defaultValue) {
-    let value = GetValue(key);
-    if (value === null) {
-        AddValue(key, value);
-        return defaultValue;
-    }
-    return value;
-}
+
+// Работа с буквами
 export function AddLetter(symbol) {
     if (!letters.includes(symbol)) {
         letters.push(symbol);
@@ -26,6 +32,7 @@ export function AddLetter(symbol) {
     }
     return false;
 }
+
 export function DeleteChar(symbol) {
     const index = letters.indexOf(symbol);
     if (index !== -1) {
@@ -35,6 +42,8 @@ export function DeleteChar(symbol) {
     }
     return false;
 }
+
+// Работа с коэффициентами
 export function ChangeMoneyCof(number) {
     if (number !== moneyCoef) {
         moneyCoef = number;
@@ -43,6 +52,7 @@ export function ChangeMoneyCof(number) {
     }
     return false;
 }
+
 export function ChangeExpCof(number) {
     if (number !== expCoef) {
         expCoef = number;
@@ -51,6 +61,8 @@ export function ChangeExpCof(number) {
     }
     return false;
 }
+
+// Работа с деньгами
 export function ChangeMoney(number) {
     if (money !== number) {
         money = number;
@@ -59,26 +71,32 @@ export function ChangeMoney(number) {
     }
     return false;
 }
+
+// Смена локации
 export function ChangeLoc(index) {
     if (index < locations.length) {
         indexofLoc = index;
         curLocation = locations[index];
-        ChangeValue("indexofLoc", index);
+        ChangeValue("indexofLoc", indexofLoc);
         ChangeValue("curLocation", curLocation);
         return true;
     }
     return false;
 }
+
+// Смена музыки
 export function ChangeMusic(index) {
     if (index < musics.length) {
         indexofMus = index;
         curMusic = musics[index];
-        ChangeValue("indexofMus", index);
+        ChangeValue("indexofMus", indexofMus);
         ChangeValue("curMusic", curMusic);
         return true;
     }
     return false;
 }
+
+// Опыт
 export function ChangeExpLvl(value) {
     if (value !== expLvl) {
         expLvl = value;
@@ -87,27 +105,46 @@ export function ChangeExpLvl(value) {
     }
     return false;
 }
+
+// Геттеры
 export function GetDict() {
-    return GetValue(letters);
+    return ValidateStorage("letters", []);
 }
+
 export function GetMoneyCof() {
-    return ValidateStorage(moneyCoef);
+    return ValidateStorage("moneyCoef", 1);
 }
+
 export function GetExpCof() {
-    return ValidateStorage(expCoef);
+    return ValidateStorage("expCoef", 1);
 }
+
 export function GetMoney() {
-    return ValidateStorage(money);
+    return ValidateStorage("money", 0);
 }
+
 export function GetIndexLocation(index) {
-    return ValidateStorage("locations")[index];
+    const locs = ValidateStorage("locations", ["1","2","3"]);
+    return locs[index];
 }
+
 export function GetMusic(index) {
-    return ValidateStorage("musics")[index];
+    const mus = ValidateStorage("musics", ["1","2","3"]);
+    return mus[index];
 }
+
 export function GetIndexMus() {
-    return ValidateStorage("indexofMus");
+    return ValidateStorage("indexofMus", 0);
 }
+
 export function GetExpLvl() {
-    return ValidateStorage("expLvl");
+    return ValidateStorage("expLvl", 0);
+}
+
+export function GetCurMusic() {
+    return ValidateStorage("curMusic", musics[0]);
+}
+
+export function GetCurLocation() {
+    return ValidateStorage("curLocation", locations[0]);
 }
