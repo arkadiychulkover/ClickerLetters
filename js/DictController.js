@@ -1,4 +1,4 @@
-import { ChangeValue, GetValue,AddValue } from "./LocalStorageController.js";
+import { ChangeValue, GetValue, AddValue } from "./LocalStorageController.js";
 let letters = ValidateStorage("letters", []);
 let musics = ValidateStorage("musics", ["1","2","3"]);
 let locations = ValidateStorage("locations", ["1","2","3"]);
@@ -13,7 +13,7 @@ let curLocation = ValidateStorage("curLocation", locations[0]);
 function ValidateStorage(key, defaultValue) {
     let value = GetValue(key);
     if (value === null) {
-        AddValue(key, value);
+        AddValue(key, defaultValue);
         return defaultValue;
     }
     return value;
@@ -26,6 +26,7 @@ export function AddLetter(symbol) {
     }
     return false;
 }
+
 export function DeleteChar(symbol) {
     const index = letters.indexOf(symbol);
     if (index !== -1) {
@@ -43,6 +44,7 @@ export function ChangeMoneyCof(number) {
     }
     return false;
 }
+
 export function ChangeExpCof(number) {
     if (number !== expCoef) {
         expCoef = number;
@@ -63,7 +65,7 @@ export function ChangeLoc(index) {
     if (index < locations.length) {
         indexofLoc = index;
         curLocation = locations[index];
-        ChangeValue("indexofLoc", index);
+        ChangeValue("indexofLoc", indexofLoc);
         ChangeValue("curLocation", curLocation);
         return true;
     }
@@ -73,7 +75,7 @@ export function ChangeMusic(index) {
     if (index < musics.length) {
         indexofMus = index;
         curMusic = musics[index];
-        ChangeValue("indexofMus", index);
+        ChangeValue("indexofMus", indexofMus);
         ChangeValue("curMusic", curMusic);
         return true;
     }
@@ -88,26 +90,41 @@ export function ChangeExpLvl(value) {
     return false;
 }
 export function GetDict() {
-    return letters;
+    return ValidateStorage("letters", letters);
 }
+
 export function GetMoneyCof() {
-    return moneyCoef;
+    return ValidateStorage("moneyCoef", moneyCoef);
 }
+
 export function GetExpCof() {
-    return expCoef;
+    return ValidateStorage("expCoef", expCoef);
 }
+
 export function GetMoney() {
-    return money;
+    return ValidateStorage("money", money);
 }
+
 export function GetIndexLocation(index) {
-    return locations[index];
+    return ValidateStorage("locations", locations);
 }
+
 export function GetMusic(index) {
-    return musics[index];
+    return ValidateSstorage("musics",musics);
 }
+
 export function GetIndexMus() {
-    return indexofMus;
+    return ValidateStorage("indexofMus", indexofMus);
 }
+
 export function GetExpLvl() {
-    return expLvl;
+    return ValidateStorage("expLvl", expLvl);
+}
+
+export function GetCurMusic() {
+    return ValidateStorage("curMusic",curMusic);
+}
+
+export function GetCurLocation() {
+    return ValidateStorage("curLocation", locations[0]);
 }
