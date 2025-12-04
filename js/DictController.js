@@ -100,10 +100,10 @@ export function GetMoney() {
     return ValidateStorage(money);
 }
 export function GetIndexLocation(index) {
-    return locations[index];
+    return ValidateStorage(locations)[index];
 }
 export function GetMusic(index) {
-    return musics[index];
+    return ValidateStorage("musics")[index];
 }
 export function GetIndexMus() {
     return ValidateStorage(indexofMus);
