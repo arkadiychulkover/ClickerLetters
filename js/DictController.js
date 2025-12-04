@@ -126,5 +126,5 @@ export function GetCurMusic() {
 }
 
 export function GetCurLocation() {
-    return ValidateStorage("curLocation", locations[0]);
+    return ValidateStorage("curLocation", curLocation);
 }
