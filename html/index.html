@@ -1,93 +1,154 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Game UI Interface</title>
+    <link rel="icon" href="data:,">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="./styles.css">
+    
+    <script type="module" src="../js/Ui.js" defer></script>
+    <script type="module" src="../js/GameController.js"></script>
+    <script type="module" src="../js/LocalStorageController.js"></script>
 </head>
 <body>
-    <div>
-        <div class="blob"></div>
-        <div class="blob"></div>
-        <div class="blob"></div>
-        <div class="blob"></div>
-        <div class="blob"></div>
-        <div class="blob"></div>
-        <div class="blob"></div>
-        <div class="blob"></div>
-        <div class="blob"></div>
-        <div class="blob"></div>
+
+    <div id="startScreen">
+        <button class="startBtn" id="startBtn">Старт</button>
     </div>
-<!-- dsf -->
-    <div class="UiContainer">
-        <div class="upperZonne">
+    <div class="background-layer" id="bgLayer"></div>
 
-            <div class="volumeContainer">
-                <svg xmlns="http://www.w3.org/2000/svg" class="musicImg" width="48" height="48" viewBox="0 0 24 24" role="img" aria-label="Музыкальная нота" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M9 18V5l12-2v15" />
-                        <circle cx="6" cy="18" r="3" />
-                        <circle cx="18" cy="16" r="3" />
-                </svg>
-                <input type="range" name="volume" id="VolumeSettings">
+    <audio id="bgMusic" loop src="../assets/1.mp3"></audio>
+    <audio id="clickSound" src="../assets/Click.mp3"></audio> 
+
+    <div class="ui-layer">
+        
+        <header class="top-bar">
+            <div class="controls-left"></div>
+
+            <div id="GetMoney" class="coins-display">
+                <span id="moneyValue" class="coin-amount">Ł0</span>
             </div>
 
-            <div class="MoneyContainer">
-                <img src="../assets/ValueLogo.png" class="coinImg">
-                <h3 class="curencyAmount">0</h3>
+            <div class="controls-right">
+                <button id="OpenSettings" class="icon-btn">
+                    <i class="fa-solid fa-gear"></i>
+                </button>
+            </div>
+        </header>
+
+        <div id="SettingsPanel" class="settings-panel hidden">
+            <h3 data-lang="settings_title">Настройки</h3>
+            
+            <div class="settings-group">
+                <p data-lang="lang_label">Язык</p>
+                <div class="lang-buttons">
+                    <button class="lang-btn active" data-target="RU">RU</button>
+                    <button class="lang-btn" data-target="EN">EN</button>
+                    <button class="lang-btn" data-target="UA">UA</button>
+                </div>
             </div>
 
-            <select id="langChange" name="languages">
-                <option value="ENG">English</option>
-                <option value="RU">Русский</option>
-            </select>
+            <div class="settings-group">
+                <p data-lang="music_vol">Музыка</p>
+                <input type="range" id="MusicSlider" min="0" max="100" value="50">
+            </div>
+
+            <div class="settings-group">
+                <p data-lang="sound_vol">Звуки</p>
+                <input type="range" id="SoundSlider" min="0" max="100" value="50">
+            </div>
+
+            <button id="CloseSettings" class="close-btn">OK</button>
         </div>
 
-        <div class="middleZone">
-            <div id="upgradeZoneLeft">
-                <div class="upgradeControler">
-                    <img src="../assets/ValLogoPluss.png" alt="" class="upgradeImg">
-                    <p class="upgradeLvl">1</p>
-                </div>
-
-                <div class="upgradeControler">
-                    <img src="../assets/xp.png" alt="" class="upgradeImg">
-                    <p class="upgradeLvl">1</p>
-                </div>
+        <main class="game-container">
+            
+            <aside id="ChangeLevelOfUpgrade" class="panel upgrades-panel">
+                <h2 class="panel-title" data-lang="upgrades_title">Улучшения</h2>
                 
-                <div class="upgradeControler">
-                    <img src="../assets/click.png" alt="" class="upgradeImg">
-                    <p class="upgradeLvl">1</p>
+                <div class="upgrades-list">
+
+                <div class="upgrade-item" id="upgrade_1">
+                    <div class="upgrade-info">
+                        <h3 data-lang="upg1_title">Больше валюты</h3>
+                        <p data-lang="upg1_desc">Больше денег за нажатие</p>
+                    </div>
+                    <button class="buy-btn">
+                        <span class="price">Ł100</span>
+                    </button>
                 </div>
+
+                <div class="upgrade-item" id="upgrade_2">
+                    <div class="upgrade-info">
+                        <h3 data-lang="upg2_title">Опыт x2</h3>
+                        <p data-lang="upg2_desc">Ускоренная прокачка уровня</p>
+                    </div>
+                    <button class="buy-btn">
+                        <span class="price">Ł250</span>
+                    </button>
+                </div>
+
+                <div class="upgrade-item" id="upgrade_3">
+                <div class="upgrade-info">
+                    <h3 data-lang="upg3_title">Авто-клик</h3>
+                    <p data-lang="upg3_desc">Пассивный доход валюты</p>
+                </div>
+                <button class="buy-btn">
+                    <span class="price">Ł500</span>
+                </button>
+                </div>
+
+                <div class="upgrade-item" id="upgrade_no_caps">
+                    <div class="upgrade-info">
+                        <h3>Без CAPS LOCK</h3>
+                        <p>Удаляет большие буквы из набора</p>
+                    </div>
+                    <button class="buy-btn">
+                        <span class="price">Ł300</span>
+                    </button>
+                </div>
+
+                <div class="upgrade-item" id="upgrade_more_digits">
+                    <div class="upgrade-info">
+                        <h3>Добавить цифры</h3>
+                        <p>Включает символы 0–9</p>
+                    </div>
+                    <button class="buy-btn">
+                        <span class="price">Ł400</span>
+                    </button>
+                </div>
+
+                <div class="upgrade-item" id="upgrade_no_symbols">
+                    <div class="upgrade-info">
+                        <h3>Убрать символы</h3>
+                        <p>Удаляет спецсимволы из набора</p>
+                    </div>
+                    <button class="buy-btn">
+                        <span class="price">Ł500</span>
+                    </button>
+                </div>
+
+                </div>
+
+            </aside>
+
+            <section id="lettersZone" class="panel game-zone"> </section>
+        </main>
+
+        <footer class="bottom-bar-container">
+            <div class="level-badge">Lvl <span id="currentLevel">1</span></div>
+            
+            <div class="progress-track">
+                <div id="SetTimeRange" class="progress-fill" style="width: 0%;"></div>
+                <span class="progress-text">0%</span>
             </div>
+        </footer>
 
-            <div id="letersZone"></div>
-
-            <div id="upgradeZoneRight">
-                <div class="upgradeControler">
-                    <img src="https://cdn-icons-png.flaticon.com/512/6604/6604851.png" alt="" class="upgradeImg">
-                    <p class="upgradeLvl">0</p>
-                </div>
-
-                <div class="upgradeControler">
-                    <img src="https://cdn-icons-png.flaticon.com/512/179/179349.png" alt="" class="upgradeImg">
-                    <p class="upgradeLvl">0</p>
-                </div>
-
-                <div class="upgradeControler">
-                    <img src="../assets/ampersand.png" alt="" class="upgradeImg">
-                    <p class="upgradeLvl">0</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="bottomZone">
-            <div id="level">
-                <div id="zalivka">
-                    <div id="levelText">Level 1</div>
-                </div>
-            </div>
-        </div>
     </div>
+
 </body>
 </html>

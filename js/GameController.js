@@ -5,8 +5,7 @@ import {
     ChangeMoney, 
     GetMoney, 
     GetExpCof, 
-    GetMoneyCof, 
-    GetTimeRange,
+    GetMoneyCof,
     GetExpLvl,
     ChangeExpLvl,
     GetIndexLocation,
@@ -180,7 +179,7 @@ async function PasiveClickLetter()
     if (key) MakeVirtualKeyDown(key);
 
     let upgradeSpeed = GetLevelOfUpgrade("TagOfPasiveUpgrade");
-    let delay = Math.max(0.3, Math.random() * upgradeSpeed);
+    let delay = Math.max(0.3, upgradeSpeed);
 
     setTimeout(PasiveClickLetter, delay * 1000);
 }
