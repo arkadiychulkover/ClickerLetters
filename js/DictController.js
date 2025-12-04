@@ -1,12 +1,4 @@
 import { ChangeValue, GetValue, AddValue } from "./LocalStorageController.js";
-function ValidateStorage(key, defaultValue) {
-    let value = GetValue(key);
-    if (value === null) {
-        AddValue(key, defaultValue);
-        return defaultValue;
-    }
-    return value;
-}
 let letters = ValidateStorage("letters", []);
 let musics = ValidateStorage("musics", ["1","2","3"]);
 let locations = ValidateStorage("locations", ["1","2","3"]);
@@ -18,6 +10,14 @@ let indexofLoc = ValidateStorage("indexofLoc", 0);
 let expLvl = ValidateStorage("expLvl", 0);
 let curMusic = ValidateStorage("curMusic", musics[0]);
 let curLocation = ValidateStorage("curLocation", locations[0]);
+function ValidateStorage(key, defaultValue) {
+    let value = GetValue(key);
+    if (value === null) {
+        AddValue(key, defaultValue);
+        return defaultValue;
+    }
+    return value;
+}
 export function AddLetter(symbol) {
     if (!letters.includes(symbol)) {
         letters.push(symbol);
@@ -90,41 +90,39 @@ export function ChangeExpLvl(value) {
     return false;
 }
 export function GetDict() {
-    return ValidateStorage("letters", []);
+    return ValidateStorage("letters", letters);
 }
 
 export function GetMoneyCof() {
-    return ValidateStorage("moneyCoef", 1);
+    return ValidateStorage("moneyCoef", moneyCoef);
 }
 
 export function GetExpCof() {
-    return ValidateStorage("expCoef", 1);
+    return ValidateStorage("expCoef", expCoef);
 }
 
 export function GetMoney() {
-    return ValidateStorage("money", 0);
+    return ValidateStorage("money", money);
 }
 
 export function GetIndexLocation(index) {
-    const locs = ValidateStorage("locations", ["1","2","3"]);
-    return locs[index];
+    ValidateStorage("locations", locations);
 }
 
 export function GetMusic(index) {
-    const mus = ValidateStorage("musics", ["1","2","3"]);
-    return mus[index];
+    return ValidateSstorage("musics".musics);
 }
 
 export function GetIndexMus() {
-    return ValidateStorage("indexofMus", 0);
+    return ValidateStorage("indexofMus", indexofMus);
 }
 
 export function GetExpLvl() {
-    return ValidateStorage("expLvl", 0);
+    return ValidateStorage("expLvl", expLvl);
 }
 
 export function GetCurMusic() {
-    return ValidateStorage("curMusic", musics[0]);
+    return ValidateStorage("curMusic",curMusic);
 }
 
 export function GetCurLocation() {
