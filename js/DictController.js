@@ -106,8 +106,8 @@ export function GetMusic(index) {
     return ValidateStorage("musics")[index];
 }
 export function GetIndexMus() {
-    return ValidateStorage(indexofMus);
+    return ValidateStorage("indexofMus");
 }
 export function GetExpLvl() {
-    return ValidateStorage(expLvl);
+    return ValidateStorage("expLvl");
 }
