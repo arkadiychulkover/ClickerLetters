@@ -30,7 +30,7 @@ const UI_STATE = {
 let soundVolume = 50;
 const settingsPanel = document.getElementById('SettingsPanel');
 
-/* INIT LISTENERS*/
+
 function initListeners() {
     
     document.getElementById("OpenSettings").onclick = () => {
@@ -293,3 +293,4 @@ function handleFirstInteraction() {
 
 document.addEventListener('click', handleFirstInteraction, { once: true });
 document.addEventListener('keydown', handleFirstInteraction, { once: true });
+
