@@ -1,19 +1,25 @@
-import { ChangeValue } from "./LocalStorageController.js";
-let letters = [];
-let backgrounds = [];
-let musics = [];
-// let locations = [];
-// let curMusic = "";
-// let curtLocation = "";
-// let money = Number(document.getElementsByClassName("curencyAmount")[0].textContent) || 0;
-let money =  0;
-let moneyCoef = 1;
-let expCoef = 1;
-let indexofMus = 0;
-let indexofLoc = 0;
-let indexofImg = "";
+import { ChangeValue, GetValue,AddValue } from "./LocalStorageController.js";
+let letters = ValidateStorage("letters", []);
+let musics = ValidateStorage("musics", ["1","2","3"]);
+let locations = ValidateStorage("locations", ["1","2","3"]);
+let money = ValidateStorage("money", 0);
+let moneyCoef = ValidateStorage("moneyCoef", 1);
+let expCoef = ValidateStorage("expCoef", 1);
+let indexofMus = ValidateStorage("indexofMus", 0);
+let indexofLoc = ValidateStorage("indexofLoc", 0);
+let expLvl = ValidateStorage("expLvl", 0);
+let curMusic = ValidateStorage("curMusic", musics[0]);
+let curLocation = ValidateStorage("curLocation", locations[0]);
+function ValidateStorage(key, defaultValue) {
+    let value = GetValue(key);
+    if (value === null) {
+        AddValue(key, value);
+        return defaultValue;
+    }
+    return value;
+}
 export function AddLetter(symbol) {
-    if (!symbol in letters) {
+    if (!letters.includes(symbol)) {
         letters.push(symbol);
         ChangeValue("letters", letters);
         return true;
@@ -23,55 +29,63 @@ export function AddLetter(symbol) {
 export function DeleteChar(symbol) {
     const index = letters.indexOf(symbol);
     if (index !== -1) {
-        letters.splice(index,1);
+        letters.splice(index, 1);
         ChangeValue("letters", letters);
         return true;
     }
     return false;
 }
 export function ChangeMoneyCof(number) {
-    if (number !== moneyCoef) { 
+    if (number !== moneyCoef) {
         moneyCoef = number;
         ChangeValue("moneyCoef", moneyCoef);
-        return true; 
+        return true;
     }
-    return false; 
+    return false;
 }
 export function ChangeExpCof(number) {
-    if (number !== expCoef) { 
+    if (number !== expCoef) {
         expCoef = number;
         ChangeValue("expCoef", expCoef);
-        return true; 
+        return true;
     }
     return false;
 }
 export function ChangeMoney(number) {
-    if(money !== number){
+    if (money !== number) {
         money = number;
-        ChangeValue("money", number);
+        ChangeValue("money", money);
         return true;
     }
     return false;
 }
-export function ChangeLoc(index){
-    if(!index in locations){
+export function ChangeLoc(index) {
+    if (index < locations.length) {
         indexofLoc = index;
-        curtLocation = locations[number];
-        ChangeValue("curLocation",curtLocation);
+        curLocation = locations[index];
+        ChangeValue("indexofLoc", index);
+        ChangeValue("curLocation", curLocation);
         return true;
-    }else{
-        return false;
     }
+    return false;
 }
-export function ChangeMusic(index){
-    if(!index in musics){
+export function ChangeMusic(index) {
+    if (index < musics.length) {
         indexofMus = index;
-        curMusic = musics[indexofMus];
-        ChangeValue("curMusic",curMusic);
+        curMusic = musics[index];
+        ChangeValue("indexofMus", index);
+        ChangeValue("curMusic", curMusic);
         return true;
-    }else{
-        return false;
     }
+    return false;
+}
+export function ChangeExpLvl(value) {
+    if (value !== expLvl) {
+        expLvl = value;
+        ChangeValue("expLvl", expLvl);
+        return true;
+    }
+    return false;
 }
 export function GetDict() {
     return letters;
@@ -85,15 +99,15 @@ export function GetExpCof() {
 export function GetMoney() {
     return money;
 }
-export function GetDict() {
-    return letters;
-}
-export function GetLoc(index){
+export function GetIndexLocation(index) {
     return locations[index];
 }
-export function GetMusic(index){
+export function GetMusic(index) {
     return musics[index];
 }
-export function GetIndexMus(){
+export function GetIndexMus() {
     return indexofMus;
+}
+export function GetExpLvl() {
+    return expLvl;
 }
