@@ -106,7 +106,7 @@ export function GetMoney() {
 }
 
 export function GetIndexLocation(index) {
-    ValidateStorage("locations", locations);
+    return ValidateStorage("locations", locations);
 }
 
 export function GetMusic(index) {
