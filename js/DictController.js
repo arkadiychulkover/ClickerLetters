@@ -110,11 +110,16 @@ export function GetIndexLocation(index) {
 }
 
 export function GetMusic(index) {
+<<<<<<< HEAD
     return ValidateSstorage("musics",musics);
+=======
+    return ValidateSstorage("musics".musics);
+>>>>>>> e4b25e08f72330b39ae2178333ff14c51d28b331
 }
 
 export function GetIndexMus() {
     return ValidateStorage("indexofMus", indexofMus);
+<<<<<<< HEAD
 }
 
 export function GetExpLvl() {
@@ -128,3 +133,18 @@ export function GetCurMusic() {
 export function GetCurLocation() {
     return ValidateStorage("curLocation", locations[0]);
 }
+=======
+}
+
+export function GetExpLvl() {
+    return ValidateStorage("expLvl", expLvl);
+}
+
+export function GetCurMusic() {
+    return ValidateStorage("curMusic",curMusic);
+}
+
+export function GetCurLocation() {
+    return ValidateStorage("curLocation", curLocation);
+}
+>>>>>>> e4b25e08f72330b39ae2178333ff14c51d28b331
