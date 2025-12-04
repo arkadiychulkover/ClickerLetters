@@ -88,16 +88,16 @@ export function ChangeExpLvl(value) {
     return false;
 }
 export function GetDict() {
-    return letters;
+    return GetValue(letters);
 }
 export function GetMoneyCof() {
-    return moneyCoef;
+    return ValidateStorage(moneyCoef);
 }
 export function GetExpCof() {
-    return expCoef;
+    return ValidateStorage(expCoef);
 }
 export function GetMoney() {
-    return money;
+    return ValidateStorage(money);
 }
 export function GetIndexLocation(index) {
     return locations[index];
@@ -106,8 +106,8 @@ export function GetMusic(index) {
     return musics[index];
 }
 export function GetIndexMus() {
-    return indexofMus;
+    return ValidateStorage(indexofMus);
 }
 export function GetExpLvl() {
-    return expLvl;
+    return ValidateStorage(expLvl);
 }
