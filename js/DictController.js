@@ -1,6 +1,4 @@
 import { ChangeValue, GetValue, AddValue } from "./LocalStorageController.js";
-
-// Функция для проверки и инициализации значения в хранилище
 function ValidateStorage(key, defaultValue) {
     let value = GetValue(key);
     if (value === null) {
@@ -9,8 +7,6 @@ function ValidateStorage(key, defaultValue) {
     }
     return value;
 }
-
-// Инициализация переменных
 let letters = ValidateStorage("letters", []);
 let musics = ValidateStorage("musics", ["1","2","3"]);
 let locations = ValidateStorage("locations", ["1","2","3"]);
@@ -22,8 +18,6 @@ let indexofLoc = ValidateStorage("indexofLoc", 0);
 let expLvl = ValidateStorage("expLvl", 0);
 let curMusic = ValidateStorage("curMusic", musics[0]);
 let curLocation = ValidateStorage("curLocation", locations[0]);
-
-// Работа с буквами
 export function AddLetter(symbol) {
     if (!letters.includes(symbol)) {
         letters.push(symbol);
@@ -42,8 +36,6 @@ export function DeleteChar(symbol) {
     }
     return false;
 }
-
-// Работа с коэффициентами
 export function ChangeMoneyCof(number) {
     if (number !== moneyCoef) {
         moneyCoef = number;
@@ -61,8 +53,6 @@ export function ChangeExpCof(number) {
     }
     return false;
 }
-
-// Работа с деньгами
 export function ChangeMoney(number) {
     if (money !== number) {
         money = number;
@@ -71,8 +61,6 @@ export function ChangeMoney(number) {
     }
     return false;
 }
-
-// Смена локации
 export function ChangeLoc(index) {
     if (index < locations.length) {
         indexofLoc = index;
@@ -83,8 +71,6 @@ export function ChangeLoc(index) {
     }
     return false;
 }
-
-// Смена музыки
 export function ChangeMusic(index) {
     if (index < musics.length) {
         indexofMus = index;
@@ -95,8 +81,6 @@ export function ChangeMusic(index) {
     }
     return false;
 }
-
-// Опыт
 export function ChangeExpLvl(value) {
     if (value !== expLvl) {
         expLvl = value;
@@ -105,8 +89,6 @@ export function ChangeExpLvl(value) {
     }
     return false;
 }
-
-// Геттеры
 export function GetDict() {
     return ValidateStorage("letters", []);
 }
