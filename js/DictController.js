@@ -1,24 +1,36 @@
-"use strict"
-import { ChangeValue, GetValue, AddValue } from "./LocalStorageController.js";
-let letters = ValidateStorage("letters", []);
-let musics = ValidateStorage("musics", ["1","2","3"]);
-let locations = ValidateStorage("locations", ["1","2","3"]);
-let money = ValidateStorage("money", 0);
-let moneyCoef = ValidateStorage("moneyCoef", 1);
-let expCoef = ValidateStorage("expCoef", 1);
-let indexofMus = ValidateStorage("indexofMus", 0);
-let indexofLoc = ValidateStorage("indexofLoc", 0);
-let expLvl = ValidateStorage("expLvl", 0);
-let curMusic = ValidateStorage("curMusic", musics[0]);
-let curLocation = ValidateStorage("curLocation", locations[0]);
-function ValidateStorage(key, defaultValue) {
-    let value = GetValue(key);
-    if (value === null) {
-        AddValue(key, defaultValue);
-        return defaultValue;
-    }
-    return value;
+"use strict";
+
+import { AddValue, ChangeValue, GetValue } from "./LocalStorageController.js";
+
+/* ---------------- ИНИЦИАЛИЗАЦИЯ ---------------- */
+
+const defaultLettersDict = [
+    ..."ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+    ..."abcdefghijklmnopqrstuvwxyz",
+    '!', '"', '#', '$', '%', '&', "'", '(', ')', '*', '+',
+    ',', '-', '.', '/', ':', ';', '<', '=', '>', '?', '@',
+    '^', '_', '`', '|', '~'
+];
+
+let letters = GetValue("letters");
+if (!Array.isArray(letters) || letters.length === 0) {
+    letters = [...defaultLettersDict];
+    AddValue("letters", letters);
 }
+
+let musics = GetValue("musics") || ["1", "2", "3"];
+let locations = GetValue("locations") || ["1", "2", "3"];
+let money = GetValue("money") || 0;
+let moneyCoef = GetValue("moneyCoef") || 1;
+let expCoef = GetValue("expCoef") || 1;
+let indexofMus = GetValue("indexofMus") || 0;
+let indexofLoc = GetValue("indexofLoc") || 0;
+let expLvl = GetValue("expLvl") || 0;
+let curMusic = GetValue("curMusic") || musics[0];
+let curLocation = GetValue("curLocation") || locations[0];
+
+/* ---------------- ФУНКЦИИ ДЛЯ БУКВ ---------------- */
+
 export function AddLetter(symbol) {
     if (!letters.includes(symbol)) {
         letters.push(symbol);
@@ -37,8 +49,11 @@ export function DeleteChar(symbol) {
     }
     return false;
 }
+
+/* ---------------- ИЗМЕНЕНИЕ КОЭФФИЦИЕНТОВ ---------------- */
+
 export function ChangeMoneyCof(number) {
-    if (number !== moneyCoef) {
+    if (moneyCoef !== number) {
         moneyCoef = number;
         ChangeValue("moneyCoef", moneyCoef);
         return true;
@@ -47,13 +62,16 @@ export function ChangeMoneyCof(number) {
 }
 
 export function ChangeExpCof(number) {
-    if (number !== expCoef) {
+    if (expCoef !== number) {
         expCoef = number;
         ChangeValue("expCoef", expCoef);
         return true;
     }
     return false;
 }
+
+/* ---------------- ДЕНЬГИ ---------------- */
+
 export function ChangeMoney(number) {
     if (money !== number) {
         money = number;
@@ -62,6 +80,9 @@ export function ChangeMoney(number) {
     }
     return false;
 }
+
+/* ---------------- ЛОКАЦИИ ---------------- */
+
 export function ChangeLoc(index) {
     if (index < locations.length) {
         indexofLoc = index;
@@ -72,6 +93,9 @@ export function ChangeLoc(index) {
     }
     return false;
 }
+
+/* ---------------- МУЗЫКА ---------------- */
+
 export function ChangeMusic(index) {
     if (index < musics.length) {
         indexofMus = index;
@@ -82,50 +106,72 @@ export function ChangeMusic(index) {
     }
     return false;
 }
+
+/* ---------------- УРОВНИ ---------------- */
+
 export function ChangeExpLvl(value) {
-    if (value !== expLvl) {
+    if (expLvl !== value) {
         expLvl = value;
         ChangeValue("expLvl", expLvl);
         return true;
     }
     return false;
 }
+
+/* ---------------- ГЕТТЕРЫ ---------------- */
+
 export function GetDict() {
-    return ValidateStorage("letters", letters);
+    return letters;
 }
 
 export function GetMoneyCof() {
-    return ValidateStorage("moneyCoef", moneyCoef);
+    return moneyCoef;
 }
 
 export function GetExpCof() {
-    return ValidateStorage("expCoef", expCoef);
+    return expCoef;
 }
 
 export function GetMoney() {
-    return ValidateStorage("money", money);
+    return money;
 }
 
-export function GetIndexLocation(index) {
-    return ValidateStorage("locations", locations);
+export function GetIndexLocation() {
+    return indexofLoc;
 }
 
-export function GetMusic(index) {
-    return ValidateSstorage("musics".musics);
+export function GetLocations() {
+    return locations;
+}
+
+export function GetMusics() {
+    return musics;
 }
 
 export function GetIndexMus() {
-    return ValidateStorage("indexofMus", indexofMus);
+    return indexofMus;
 }
 
 export function GetExpLvl() {
-    return ValidateStorage("expLvl", expLvl);
+    return expLvl;
 }
 
 export function GetCurMusic() {
-    return ValidateStorage("curMusic",curMusic);
+    return curMusic;
 }
 
 export function GetCurLocation() {
-    return ValidateStorage("curLocation", curLocation);
+    return curLocation;
+}
+
+export function GetLevelOfUpgrade(tag) {
+    // пример: возвращаем 1 для пассивного клика, иначе 0
+    if (tag === "TagOfPasiveUpgrade") return 1;
+    return 0;
+}
+
+export function GetRandomDictLetter() {
+    if (!letters || letters.length === 0) return null;
+    const idx = Math.floor(Math.random() * letters.length);
+    return letters[idx];
 }

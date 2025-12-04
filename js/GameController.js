@@ -1,199 +1,229 @@
 "use strict";
 
-import { 
-    GetDict, 
-    ChangeMoney, 
-    GetMoney, 
-    GetExpCof, 
-    GetMoneyCof,
-    GetExpLvl,
-    ChangeExpLvl,
-    GetIndexLocation,
-    GetIndexMus,
-    ChangeMusic,
-    ChangeLoc
+import {
+  GetDict,
+  GetMoney,
+  GetExpCof,
+  GetMoneyCof,
+  GetExpLvl,
+  ChangeExpLvl,
+  ChangeMoney,
+  GetIndexLocation,
+  GetIndexMus,
+  GetLevelOfUpgrade,
+  GetRandomDictLetter
 } from "./DictController.js";
 
-import { 
-    GetLevelOfUpgrade,
-    ChangeBackgroundMusic,
-    ChangeBacgroundImg,
-    ChangeLevelOfVacabuular,
-    ChangeShkalaOfVacabular,
-    ChangeAmountOfValute
+import {
+  ChangeBackgroundMusic,
+  ChangeBacgroundImg,
+  ChangeLevelOfVacabuular,
+  ChangeShkalaOfVacabular,
+  ChangeAmountOfValute,
+  GetLevelOfUpgrade as UIGetLevelOfUpgrade
 } from "./Ui.js";
 
-let curentKeys = [];
-let currentLettersDivs = [];
-let currentLettersDivsClases = [];
-let lettersZone = document.getElementById("lettersZone");
+const lettersZone = document.getElementById("lettersZone");
 
-document.addEventListener('keydown', async (e) => 
-{
-    let key = e.key.toLowerCase();
-    if (!ValidateKey(key)) return;
+const activeLetters = new Map();
+let spawnLoopRunning = false;
+let passiveClickRunning = false;
 
-    let divLet = GetLetObjFromName(key);
-    if (!divLet) return;
-
-    divLet.classList.add("correct");//тупо зеленая
-    await sleep(200);
-
-    if (divLet.parentNode)
-        lettersZone.removeChild(divLet);
-
-    DeletLetFromArrays(key);
-
-    let keyIdx = curentKeys.indexOf(key);
-    if (keyIdx !== -1) curentKeys.splice(keyIdx, 1);
-
-    let moneyCof = GetMoneyCof();
-    let expCof = GetExpCof();
-
-    let moneyToAdd = Math.floor(1 * moneyCof);
-    let expToAdd = Math.floor(1 * expCof);
-
-    let oldExp = GetExpLvl();
-    let newExp = oldExp + expToAdd;
-
-    let newMoney = GetMoney() + moneyToAdd;
-    ChangeMoney(newMoney);
-    ChangeAmountOfValute(newMoney);
-
-    ChangeExpLvl(newExp);
-
-    let locationIndex = GetIndexLocation();
-
-    let oldLvl = Math.floor(oldExp / 100);
-    let newLvl = Math.floor(newExp / 100);
-
-    if (newLvl > oldLvl)
-    {
-        ChangeLevelOfVacabuular(newLvl);
-
-        if (newLvl > locationIndex && locationIndex < 5)
-        {
-            ChangeLoc(newLvl);
-            ChangeBacgroundImg(newLvl);
-
-            let indexMusic = GetIndexMus();
-            ChangeMusic(indexMusic + 1);
-            ChangeBackgroundMusic(indexMusic + 1);
-        }
-    }
-
-    let percent = newExp % 100;
-    ChangeShkalaOfVacabular(percent);
-
-    console.log(`+${moneyToAdd} money, +${expToAdd} exp`);
-});
-
-
-function ValidateKey(key)
-{
-    return curentKeys.includes(key);
-}
-
-function DeletLetFromArrays(key)
-{
-    let index = currentLettersDivsClases.indexOf(key);
-
-    if (index !== -1)
-    {
-        currentLettersDivsClases.splice(index, 1);
-        currentLettersDivs.splice(index, 1);
-    }
-}
-
-function GetLetObjFromName(name)
-{
-    let index = currentLettersDivsClases.indexOf(name);
-    return index !== -1 ? currentLettersDivs[index] : null;
-}
-
-async function SpawnLetter(letter)
-{
-    let letterEl = document.createElement("div");
-
-    letterEl.classList.add("letter", letter); //анимауия 3 секунды 1 проявление 2 ничего 3 удаление медленное
-    letterEl.textContent = letter;
-
-    currentLettersDivs.push(letterEl);
-    currentLettersDivsClases.push(letter);
-    curentKeys.push(letter);
-
-    lettersZone.appendChild(letterEl);
-
-    DeleteLetter(letterEl, letter);
-}
-
-async function DeleteLetter(letterEl, key)
-{
-    await sleep(3000);
-
-    if (!letterEl || !letterEl.parentNode) return;
-
-    lettersZone.removeChild(letterEl);
-    DeletLetFromArrays(key);
-
-    let i = curentKeys.indexOf(key);
-    if (i !== -1) curentKeys.splice(i, 1);
-}
-
-function GetRandomLetter()
-{
-    let dict = GetDict();
-    let randInd = Math.floor(Math.random() * dict.length);
-    return dict[randInd];
-}
-
-function GetRandomLetterFromCurrent()
-{
-    if (curentKeys.length === 0) return null;
-    return curentKeys[Math.floor(Math.random() * curentKeys.length)];
-}
+const BASE_SPAWN_DELAY = 500000;
+const MIN_SPAWN_DELAY = 200;
+const LETTER_LIFE = 3000;
 
 function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((res) => setTimeout(res, ms));
 }
 
-async function SpawnLettersInTimer()
+function makeKeyboardEvent(key) {
+  return new KeyboardEvent("keydown", {
+    key: key,
+    code: `Key${key.toUpperCase()}`,
+    bubbles: true,
+  });
+}
+
+function createLetterElement(letter) {
+  const letterEl = document.createElement("div");
+
+  letterEl.classList.add("letter", `letter-${letter}`);
+  letterEl.textContent = letter;
+  letterEl.style.position = "absolute";
+
+  letterEl.style.left = `${Math.floor(Math.random() * 100)}%`;
+  letterEl.style.top = `${Math.floor(Math.random() * 100)}%`;
+
+  return letterEl;
+}
+
+function spawnLetter(letter) {
+  if (activeLetters.has(letter)) return;
+
+  const el = createLetterElement(letter);
+  const meta = { el, key: letter, removed: false, timeoutId: null };
+
+  activeLetters.set(letter, meta);
+  lettersZone.appendChild(el);
+
+  el.addEventListener("click", () => virtualKeyHandled(letter));
+
+  meta.timeoutId = setTimeout(() => {
+    if (!meta.removed) removeLetter(letter);
+  }, LETTER_LIFE);
+
+}
+
+function removeLetter(key) {
+  const meta = activeLetters.get(key);
+
+  if (!meta || meta.removed) return;
+  meta.removed = true;
+
+  if (meta.timeoutId) {
+    clearTimeout(meta.timeoutId);
+    meta.timeoutId = null;
+  }
+
+  if (meta.el && meta.el.parentNode === lettersZone) {
+    lettersZone.removeChild(meta.el);
+  }
+
+  activeLetters.delete(key);
+}
+
+function getRandomActiveLetter() {
+  const keys = Array.from(activeLetters.keys());
+
+  if (keys.length === 0) return null;
+
+  return keys[Math.floor(Math.random() * keys.length)];
+}
+
+async function virtualKeyHandled(key) {
+  if (!activeLetters.has(key)) return;
+  const meta = activeLetters.get(key);
+  
+  if (!meta || meta.removed) return;
+  meta.el.classList.add("correct");
+  await sleep(200);
+
+  removeLetter(key);
+
+  const moneyCof = GetMoneyCof();
+  const expCof = GetExpCof();
+  const moneyToAdd = Math.floor(1 * moneyCof);
+  const expToAdd = Math.floor(1 * expCof);
+  const oldExp = GetExpLvl();
+  const newExp = oldExp + expToAdd;
+  const newMoney = GetMoney() + moneyToAdd;
+
+  ChangeMoney(newMoney);
+  ChangeAmountOfValute(newMoney);
+  ChangeExpLvl(newExp);
+
+  const locationIndex = GetIndexLocation();
+  const oldLvl = Math.floor(oldExp / 100);
+  const newLvl = Math.floor(newExp / 100);
+
+  if (newLvl > oldLvl) {
+    ChangeLevelOfVacabuular(newLvl);
+
+    if (newLvl > locationIndex && locationIndex < 5) {
+      ChangeBacgroundImg(newLvl);
+      const indexMusic = GetIndexMus();
+      ChangeBackgroundMusic(indexMusic + 1);
+    }
+  }
+
+  const percent = newExp % 100;
+  ChangeShkalaOfVacabular(percent);
+
+  console.log(`+${moneyToAdd} money, +${expToAdd} exp`);
+}
+
+async function startSpawnLoop() 
 {
-    let letter = GetRandomLetter();
-    SpawnLetter(letter);
+    if (spawnLoopRunning) return;
+    spawnLoopRunning = true;
 
-    let baseDelay = 5000;
-    let level = GetExpLvl();
+    try 
+    {
+        while (spawnLoopRunning) {
+        const dict = GetDict();
 
-    let speedFactor = 1 + (level / 5);
-    let delay = Math.max(200, baseDelay / speedFactor);
+        if (!Array.isArray(dict) || dict.length === 0) {
+            await sleep(1000);
+            continue;
+        }
 
-    delay = delay * (0.6 + Math.random() * 0.8);
+        const letter = GetRandomDictLetter();
 
-    setTimeout(SpawnLettersInTimer, delay);
+        if (letter) spawnLetter(letter);
+
+        const level = GetExpLvl();
+        const speedFactor = 1 + level / 5;
+        let delay = Math.max(MIN_SPAWN_DELAY, BASE_SPAWN_DELAY / speedFactor);
+
+        delay = Math.floor(delay * (0.6 + Math.random() * 0.8));
+        await sleep(delay);
+        }
+    }
+    finally 
+    {
+        spawnLoopRunning = false;
+    }
 }
 
-async function PasiveClickLetter()
+function stopSpawnLoop() 
 {
-    let key = GetRandomLetterFromCurrent();
-    if (key) MakeVirtualKeyDown(key);
-
-    let upgradeSpeed = GetLevelOfUpgrade("TagOfPasiveUpgrade");
-    let delay = Math.max(0.3, upgradeSpeed);
-
-    setTimeout(PasiveClickLetter, delay * 1000);
+  spawnLoopRunning = false;
 }
 
-function MakeVirtualKeyDown(key)
+async function startPassiveClickLoop() 
 {
-    let event = new KeyboardEvent("keydown", {
-        key: key,
-        code: `Key${key.toUpperCase()}`,
-        bubbles: true
-    });
-
-    document.dispatchEvent(event);
+    if (passiveClickRunning) return;
+    passiveClickRunning = true;
+    try 
+    {
+        while (passiveClickRunning) 
+        {
+            const key = getRandomActiveLetter();
+            if (key) 
+            {
+                const ev = makeKeyboardEvent(key);
+                document.dispatchEvent(ev);
+            }
+            const upgradeSpeed = GetLevelOfUpgrade("TagOfPasiveUpgrade");
+            const delaySecs = Math.max(0.3, upgradeSpeed || 1);
+            await sleep(delaySecs * 1000);
+        }
+    } 
+    finally 
+    {
+        passiveClickRunning = false;
+    }
 }
 
-SpawnLettersInTimer();
-PasiveClickLetter();
+function stopPassiveClickLoop()
+{
+  passiveClickRunning = false;
+}
+
+document.addEventListener("keydown", async (e) =>
+{
+    const key = String(e.key || "");
+    console.log(key + " on klava");
+    if (!key) return;
+    if (!activeLetters.has(key)) return;
+    await virtualKeyHandled(key);
+});
+
+function init() 
+{
+    startSpawnLoop();
+    startPassiveClickLoop();
+}
+
+init();

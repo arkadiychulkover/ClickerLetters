@@ -428,5 +428,5 @@ function closeStartScreen() {
 }
 
 startBtn.addEventListener("click", closeStartScreen);
-ChangeBackgroundMusic(1);
+//ChangeBackgroundMusic(1);
 //ChangeBacgroundImg(3);
