@@ -1,6 +1,7 @@
 "use strict"
 
 import { ChangeMoney } from "../js/DictController.js";
+import { GetValue, ChangeValue, AddValue } from "./LocalStorageController.js";
 
 const TRANSLATIONS = {
     RU: {
@@ -93,8 +94,88 @@ const UI_STATE = {
     autoClickInterval: null
 };
 
+export let gameStarted = false;
 let soundVolume = 50;
 let musicVolume = 50;
+
+function calcPrice(basePrice, level) {
+    return Math.floor(basePrice * Math.pow(1.5, level));
+}
+
+function loadUpgradesFromStorage() { // CHANGED!!! New function
+    const saved = GetValue("game_upgrades");
+    if (!saved || typeof saved !== "object") return;
+    
+    Object.keys(saved).forEach(upgradeId => {
+        const target = UI_STATE.upgrades[upgradeId];
+        const source = saved[upgradeId];
+        
+        if (target && source) {
+            target.level = source.level || 0;
+            target.price = calcPrice(target.basePrice, target.level);
+            
+            if (upgradeId === "upgrade_3" && target.level > 0 && !target.active) {
+                target.active = true;
+                startAutoClick();
+            }
+        }
+    });
+    
+    updateUpgradesUI();
+}
+
+function saveUpgradesToStorage() { // CHANGED!!! New function
+    const out = {};
+    Object.entries(UI_STATE.upgrades).forEach(([id, upgrade]) => {
+        out[id] = {
+            level: upgrade.level || 0,
+            basePrice: upgrade.basePrice
+        };
+    });
+    ChangeValue("game_upgrades", out);
+}
+
+function saveLanguageToStorage() { // CHANGED!!! New function
+    ChangeValue("game_language", UI_STATE.currentLang);
+}
+
+function loadLanguageFromStorage() {  // CHANGED!!! New function
+    const savedLang = GetValue("game_language");
+    if (savedLang && TRANSLATIONS[savedLang]) {
+        UI_STATE.currentLang = savedLang;
+    }
+}
+
+function updateUpgradeElement(upgradeId) { // CHANGED!!! New function
+    const upgrade = UI_STATE.upgrades[upgradeId];
+    const el = document.getElementById(upgradeId);
+    if (!el) return;
+    
+    const priceEl = el.querySelector(".price");
+    const descEl = el.querySelector(".upgrade-info p");
+    const btn = el.querySelector(".buy-btn");
+    
+    if (upgrade.maxLvl !== undefined && upgrade.level >= upgrade.maxLvl) {
+        if (priceEl) priceEl.innerText = "Макс. уровень";
+        if (btn) btn.disabled = true;
+    } else {
+        if (priceEl) priceEl.innerText = `Ł${upgrade.price}`;
+        if (btn) btn.disabled = false;
+    }
+    
+    if (descEl && descEl.dataset.lang) {
+        const baseDesc = TRANSLATIONS[UI_STATE.currentLang][descEl.dataset.lang];
+        if (baseDesc) {
+            descEl.innerText = `${baseDesc} (Уровень: ${upgrade.level})`;
+        }
+    }
+}
+
+function updateUpgradesUI() { // CHANGED!!! New function
+    Object.keys(UI_STATE.upgrades).forEach(upgradeId => {
+        updateUpgradeElement(upgradeId);
+    });
+}
 
 function initListeners() {
     // Открытие настроек
@@ -169,6 +250,10 @@ function applyLanguage(lang) {
             el.innerText = texts[key];
         }
     });
+
+    updateUpgradesUI();  // CHANGED!!! New string
+    
+    saveLanguageToStorage();
 }
 
 function playSfx() {
@@ -264,6 +349,7 @@ function buyUpgrade(upgradeId) {
     applyUpgradeEffect(upgradeId);
     
     playSfx();
+    saveUpgradesToStorage();
     return true;
 }
 
@@ -432,14 +518,32 @@ export function GetIndexMus() {
     return UI_STATE.musicIndex;
 }
 
+function loadGameData() {  // CHANGED!!! New function
+    const savedMoney = GetValue("game_money");
+    if (savedMoney !== null) {
+        ChangeAmountOfValute(savedMoney);
+    }
+    
+    const savedExp = GetValue("game_experience");
+    if (savedExp !== null) {
+        const level = Math.floor(savedExp / 100);
+        const percent = savedExp % 100;
+        
+        ChangeLevelOfVacabuular(level);
+        ChangeShkalaOfVacabular(percent);
+    }
+    
+    loadLanguageFromStorage();
+    loadUpgradesFromStorage();
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     initListeners();
     applyLanguage(UI_STATE.currentLang);
     
     try 
     {
-        let level = getElementById("InitAudio");
-        level.innerText = GetExpLvl();
+        loadGameData();
     } 
     catch (error) {
         console.error("Error loading saved state:", error);
