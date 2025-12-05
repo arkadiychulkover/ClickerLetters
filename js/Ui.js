@@ -330,7 +330,21 @@ function buyUpgrade(upgradeId) {
     const currentMoney = parseInt(moneyEl.innerText.replace('Ł', '')) || 0;
     
     if (currentMoney < upgrade.price) {
-        alert("Недостаточно денег!");
+        // Анимация мигания при недостатке денег
+        moneyEl.classList.add('moneyFlash');
+        
+        // Удаляем класс после завершения анимации
+        const removeFlash = () => {
+            moneyEl.classList.remove('moneyFlash');
+            moneyEl.removeEventListener('animationend', removeFlash);
+        };
+        moneyEl.addEventListener('animationend', removeFlash, { once: true });
+        
+        // Вибро-фидбек (если поддерживается)
+        if (navigator.vibrate) {
+            navigator.vibrate([100, 50, 100]);
+        }
+        
         return false;
     }
     
@@ -343,9 +357,23 @@ function buyUpgrade(upgradeId) {
     
     const upgradeElement = document.getElementById(upgradeId);
     if (upgradeElement) {
+        // Анимация успешной покупки
+        upgradeElement.classList.add('purchase-success');
+        setTimeout(() => {
+            upgradeElement.classList.remove('purchase-success');
+        }, 800);
+        
         const priceElement = upgradeElement.querySelector(".price");
         if (priceElement) {
+            // Анимация изменения цены
+            priceElement.style.transform = 'scale(1.2)';
+            priceElement.style.color = '#2ecc71';
             priceElement.innerText = `Ł${upgrade.price}`;
+            
+            setTimeout(() => {
+                priceElement.style.transform = 'scale(1)';
+                priceElement.style.color = '';
+            }, 300);
         }
         
         // Обновление уровня улучшения в описании
@@ -357,12 +385,34 @@ function buyUpgrade(upgradeId) {
             const baseText = descElement.innerText.split('(')[0].trim();
             descElement.innerText = `${baseText} (Уровень: ${upgrade.level})`;
         }
+        
+        // Для улучшений, которые можно купить только один раз
+        if ((upgradeId === "upgrade_no_caps" || 
+             upgradeId === "upgrade_more_digits" || 
+             upgradeId === "upgrade_no_symbols") && 
+            upgrade.level >= 1) {
+            
+            const buyBtn = upgradeElement.querySelector(".buy-btn");
+            if (buyBtn) {
+                buyBtn.disabled = true;
+                buyBtn.innerHTML = '<span class="price">Куплено</span>';
+                upgradeElement.classList.add('purchased');
+            }
+        }
     }
     
-    applyUpgradeEffect(upgradeId);
+    // Обновляем коэффициенты через DictController
+    SetUpgradeLevel(upgradeId, upgrade.level);
     
     playSfx();
     saveUpgradesToStorage();
+    
+    // Анимация потраченных денег
+    moneyEl.style.transform = 'scale(0.95)';
+    setTimeout(() => {
+        moneyEl.style.transform = 'scale(1)';
+    }, 200);
+    
     return true;
 }
 

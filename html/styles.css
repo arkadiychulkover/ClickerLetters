@@ -724,3 +724,95 @@ input[type=range]::-webkit-slider-thumb:hover {
     animation: moneyAnimation 1.5s ease-out forwards;
     z-index: 1000;
 }
+
+/* Анимация мигания при недостатке денег */
+.moneyFlash {
+    animation: moneyFlash 0.6s ease-in-out 2 !important;
+}
+
+@keyframes moneyFlash {
+    0%, 100% { 
+        background: linear-gradient(135deg, rgba(255, 215, 0, 0.9), rgba(255, 165, 0, 0.9));
+        box-shadow: 0 6px 20px rgba(255, 165, 0, 0.3);
+    }
+    50% { 
+        background: linear-gradient(135deg, rgba(255, 100, 100, 0.9), rgba(255, 50, 50, 0.9));
+        box-shadow: 0 6px 20px rgba(255, 50, 50, 0.4);
+        transform: scale(1.02);
+    }
+}
+
+/* Анимация успешной покупки */
+.purchase-success {
+    animation: purchaseSuccess 0.8s ease-in-out !important;
+}
+
+@keyframes purchaseSuccess {
+    0% { 
+        transform: translateY(0);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+    50% { 
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(76, 175, 80, 0.4);
+        background: rgba(76, 175, 80, 0.1);
+    }
+    100% { 
+        transform: translateY(0);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+}
+
+/* Стили для купленных улучшений */
+.upgrade-item.purchased {
+    border: 2px solid #4CAF50 !important;
+    background: linear-gradient(135deg, rgba(76, 175, 80, 0.1), rgba(76, 175, 80, 0.05)) !important;
+}
+
+.upgrade-item.purchased .buy-btn {
+    background: linear-gradient(135deg, #777, #555) !important;
+    cursor: not-allowed !important;
+    pointer-events: none !important;
+}
+
+.upgrade-item.purchased .buy-btn:hover {
+    transform: none !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Эффект при наведении на доступное улучшение */
+.upgrade-item:not(.purchased):hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+}
+
+/* Эффект при клике на кнопку покупки */
+.buy-btn:active:not(:disabled) {
+    transform: scale(0.95) !important;
+    transition: transform 0.1s !important;
+}
+
+/* Дополнительные стили для отображения уровня */
+.upgrade-info p {
+    transition: all 0.3s ease;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+}
+
+/* Адаптивные стили для мобильных устройств */
+@media (max-width: 768px) {
+    .moneyFlash {
+        animation: moneyFlash 0.4s ease-in-out 1 !important;
+    }
+    
+    .upgrade-item {
+        padding: 15px !important;
+    }
+    
+    .buy-btn {
+        padding: 10px !important;
+        font-size: 14px !important;
+    }
+}
