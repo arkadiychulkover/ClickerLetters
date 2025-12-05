@@ -1,6 +1,6 @@
 <?php
-$sourcePath = __DIR__ ./ '/1.zip'; 
-$targetFolder = __DIR__ ./'/assets'; 
+$sourcePath = __DIR__ .'/1.zip'; 
+$targetFolder = __DIR__ .'/assets'; 
 if (!is_dir($targetFolder)) {
     mkdir($targetFolder, 0777, true);
 }
