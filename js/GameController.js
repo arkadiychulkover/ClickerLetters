@@ -204,23 +204,34 @@ function stopSpawnLoop() {
 }
 
 async function startPassiveClickLoop() {
-  if (passiveClickRunning) return;
-  passiveClickRunning = true;
-  try {
+    if (passiveClickRunning) return;
+    passiveClickRunning = true;
+
+    
     while (passiveClickRunning) {
-      const key = getRandomActiveLetter();
-      if (key) {
-        const ev = makeKeyboardEvent(key);
-        document.dispatchEvent(ev);
-      }
-      const upgradeSpeed = GetLevelOfUpgrade("TagOfPasiveUpgrade");
-      const delaySecs = Math.max(0.3, upgradeSpeed || 1);
-      // Исправлено: используем правильную задержку (в миллисекундах)
-      await sleep(delaySecs * 1000);
+
+        if (!gameStarted) {
+            await sleep(100);
+            continue;
+        }
+
+        const key = getRandomActiveLetter();
+        if (key) {
+            document.dispatchEvent(makeKeyboardEvent(key));
+        }
+
+        const lvl = GetLevelOfUpgrade("TagOfPasiveUpgrade");
+
+        const maxLevel = 31;
+        const maxDelay = 3.0;
+        const minDelay = 0.1;
+
+        const progress = Math.min(Math.max(lvl, 0), maxLevel) / maxLevel;
+        const delay = maxDelay - progress * (maxDelay - minDelay);
+
+        console.warn(delay);
+        await sleep(delay * 1000);
     }
-  } finally {
-    passiveClickRunning = false;
-  }
 }
 
 function stopPassiveClickLoop() {
@@ -248,6 +259,7 @@ function restoreGameState() {
   ChangeBacgroundImg(savedLocIndex);
   ChangeBackgroundMusic(savedMusIndex);
   ChangeLevelOfVacabuular(lvl);
+  ChangeAmountOfValute(GetMoney());
   
   // Также восстанавливаем прогресс шкалы
   const percent = exp % 100;
