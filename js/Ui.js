@@ -1,6 +1,6 @@
 "use strict"
 
-//import { GetExpLvl } from "./DictController";
+import { ChangeMoney } from "../js/DictController.js";
 
 const TRANSLATIONS = {
     RU: {
@@ -238,6 +238,7 @@ function buyUpgrade(upgradeId) {
     
     const newMoney = currentMoney - upgrade.price;
     moneyEl.innerText = `Ł${newMoney}`;
+    ChangeMoney(newMoney);
     
     upgrade.level++;
     upgrade.price = Math.floor(upgrade.basePrice * Math.pow(1.5, upgrade.level));
