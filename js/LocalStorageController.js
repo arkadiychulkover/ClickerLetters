@@ -1,3 +1,5 @@
+"use strict"
+
 const SECRET = "KhdBOamwkXggsvnmsnAiPnIsbdxJtWIcmhnoxHjBxSxolGZRxDPrTPgmQZfmqlVa";
 
 function encrypt(text) {

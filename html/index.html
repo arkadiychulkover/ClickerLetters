@@ -8,19 +8,21 @@
     
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <link rel="stylesheet" href="styles.css">
-    <script type="module" src="../js/ui.js"></script>
+    <link rel="stylesheet" href="./styles.css">
+    
+    <script type="module" src="../js/Ui.js" defer></script>
+    <script type="module" src="../js/GameController.js"></script>
+    <script type="module" src="../js/LocalStorageController.js"></script>
 </head>
 <body>
+
     <div id="startScreen">
         <button class="startBtn" id="startBtn">Старт</button>
     </div>
-
     <div class="background-layer" id="bgLayer"></div>
 
-    <audio id="bgMusic" loop src="../assets/moodmode_-_Japanese_Garden.mp3"></audio>
-    <audio id="clickSound" src="../assets/room-switch-button.mp3"></audio>
+    <audio id="bgMusic" loop src="http://www.superbis.com.ua/wp-content/uploads/2025/12/1.mp3"></audio>
+    <audio id="clickSound" src="http://www.superbis.com.ua/wp-content/uploads/2025/12/click.mp3"></audio> 
 
     <div class="ui-layer">
         
@@ -28,8 +30,7 @@
             <div class="controls-left"></div>
 
             <div id="GetMoney" class="coins-display">
-                <img src="../assets/ValueLogo.png">
-                <span id="moneyValue" class="coin-amount">0</span>
+                <span id="moneyValue" class="coin-amount">Ł0</span>
             </div>
 
             <div class="controls-right">
@@ -71,73 +72,71 @@
                 
                 <div class="upgrades-list">
 
-    <div class="upgrade-item" id="upgrade_1">
-        <div class="upgrade-info">
-            <h3 data-lang="upg1_title">Больше валюты</h3>
-            <p data-lang="upg1_desc">Больше денег за нажатие</p>
-        </div>
-        <button class="buy-btn">
-            <span class="price">Ł100</span>
-        </button>
-    </div>
+                <div class="upgrade-item" id="upgrade_1">
+                    <div class="upgrade-info">
+                        <h3 data-lang="upg1_title">Больше валюты</h3>
+                        <p data-lang="upg1_desc">Больше денег за нажатие</p>
+                    </div>
+                    <button class="buy-btn">
+                        <span class="price">Ł100</span>
+                    </button>
+                </div>
 
-    <div class="upgrade-item" id="upgrade_2">
-        <div class="upgrade-info">
-            <h3 data-lang="upg2_title">Опыт x2</h3>
-            <p data-lang="upg2_desc">Ускоренная прокачка уровня</p>
-        </div>
-        <button class="buy-btn">
-            <span class="price">Ł250</span>
-        </button>
-    </div>
+                <div class="upgrade-item" id="upgrade_2">
+                    <div class="upgrade-info">
+                        <h3 data-lang="upg2_title">Опыт x2</h3>
+                        <p data-lang="upg2_desc">Ускоренная прокачка уровня</p>
+                    </div>
+                    <button class="buy-btn">
+                        <span class="price">Ł250</span>
+                    </button>
+                </div>
 
-    <div class="upgrade-item" id="upgrade_3">
-    <div class="upgrade-info">
-        <h3 data-lang="upg3_title">Авто-клик</h3>
-        <p data-lang="upg3_desc">Пассивный доход валюты</p>
-    </div>
-    <button class="buy-btn">
-        <span class="price">Ł500</span>
-    </button>
-    </div>
+                <div class="upgrade-item" id="upgrade_3">
+                <div class="upgrade-info">
+                    <h3 data-lang="upg3_title">Авто-клик</h3>
+                    <p data-lang="upg3_desc">Пассивный доход валюты</p>
+                </div>
+                <button class="buy-btn">
+                    <span class="price">Ł500</span>
+                </button>
+                </div>
 
-    <div class="upgrade-item" id="upgrade_no_caps">
-        <div class="upgrade-info">
-            <h3 data-lang="upg4_title">Без CAPS LOCK</h3>
-            <p data-lang="upg4_desc">Удаляет большие буквы из набора</p>
-        </div>
-        <button class="buy-btn">
-            <span class="price">Ł300</span>
-        </button>
-    </div>
+                <div class="upgrade-item" id="upgrade_no_caps">
+                    <div class="upgrade-info">
+                        <h3 data-lang="upg4_title">Без CAPS LOCK</h3>
+                        <p data-lang="upg4_desc">Удаляет большие буквы из набора</p>
+                    </div>
+                    <button class="buy-btn">
+                        <span class="price">Ł300</span>
+                    </button>
+                </div>
 
-    <div class="upgrade-item" id="upgrade_more_digits">
-        <div class="upgrade-info">
-            <h3 data-lang="upg5_title">Добавить цифры</h3>
-            <p data-lang="upg5_desc">Включает символы 0–9</p>
-        </div>
-        <button class="buy-btn">
-            <span class="price">Ł400</span>
-        </button>
-    </div>
+                <div class="upgrade-item" id="upgrade_more_digits">
+                    <div class="upgrade-info">
+                        <h3 data-lang="upg5_title">Добавить цифры</h3>
+                        <p data-lang="upg5_desc">Включает символы 0–9</p>
+                    </div>
+                    <button class="buy-btn">
+                        <span class="price">Ł400</span>
+                    </button>
+                </div>
 
-    <div class="upgrade-item" id="upgrade_no_symbols">
-        <div class="upgrade-info">
-            <h3 data-lang="upg6_title">Убрать символы</h3>
-            <p data-lang="upg6_desc">Удаляет спецсимволы из набора</p>
-        </div>
-        <button class="buy-btn">
-            <span class="price">Ł500</span>
-        </button>
-    </div>
+                <div class="upgrade-item" id="upgrade_no_symbols">
+                    <div class="upgrade-info">
+                        <h3 data-lang="upg6_title">Убрать символы</h3>
+                        <p data-lang="upg6_desc">Удаляет спецсимволы из набора</p>
+                    </div>
+                    <button class="buy-btn">
+                        <span class="price">Ł500</span>
+                    </button>
+                </div>
 
-    </div>
+                </div>
 
             </aside>
 
-            <section id="lettersZone" class="panel game-zone">
-                </section>
-
+            <section id="lettersZone" class="panel game-zone"> </section>
         </main>
 
         <footer class="bottom-bar-container">
