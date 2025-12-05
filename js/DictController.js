@@ -38,6 +38,21 @@ let expLvl = GetValue("expLvl") || 0;
 let curMusic = GetValue("curMusic") || musics[0];
 let curLocation = GetValue("curLocation") || locations[0];
 
+// ДОБАВЛЕНО: Загрузка апгрейдов из хранилища
+let upgrades = GetValue("upgrades") || {
+    upgrade_1: { level: 0 },
+    upgrade_2: { level: 0 },
+    upgrade_3: { level: 0, active: false },
+    upgrade_no_caps: { level: 0 },
+    upgrade_more_digits: { level: 0 },
+    upgrade_no_symbols: { level: 0 }
+};
+
+// ДОБАВЛЕНО: Функция для сохранения апгрейдов
+function saveUpgrades() {
+    ChangeValue("upgrades", upgrades);
+}
+
 export function AddLetter(symbol) {
     if (!letters.includes(symbol)) {
         letters.push(symbol);
@@ -93,10 +108,6 @@ export function ChangeLoc(index) {
         curLocation = locations[index];
         ChangeValue("indexofLoc", indexofLoc);
         ChangeValue("curLocation", curLocation);
-
-        console.warn("Location changed to:", index);
-        console.warn("Saved indexofLoc:", GetValue("indexofLoc"));
-        console.warn("Saved curLocation:", GetValue("curLocation"));
         return true;
     } else {
         console.error("Invalid location index:", index);
@@ -113,8 +124,6 @@ export function ChangeMusic(index) {
         curMusic = musics[index];
         ChangeValue("indexofMus", indexofMus);
         ChangeValue("curMusic", curMusic);
-        
-        console.warn("Music changed to:", index);
         return true;
     } else {
         console.error("Invalid music index:", index);
@@ -129,6 +138,36 @@ export function ChangeExpLvl(value) {
         return true;
     }
     return false;
+}
+
+// ДОБАВЛЕНО: Функции для работы с апгрейдами
+export function GetUpgradeLevel(upgradeId) {
+    return upgrades[upgradeId]?.level || 0;
+}
+
+export function SetUpgradeLevel(upgradeId, level) {
+    if (upgrades[upgradeId]) {
+        upgrades[upgradeId].level = level;
+        saveUpgrades();
+        
+        // Обновляем коэффициенты в зависимости от уровня апгрейда
+        if (upgradeId === "upgrade_1") {
+            // Каждый уровень upgrade_1 дает +1 к множителю денег
+            ChangeMoneyCof(1 + level);
+        } else if (upgradeId === "upgrade_2") {
+            // Каждый уровень upgrade_2 дает x2 к опыту
+            ChangeExpCof(level + 1);
+        } else if (upgradeId === "upgrade_3" && level > 0) {
+            upgrades[upgradeId].active = true;
+        }
+        
+        return true;
+    }
+    return false;
+}
+
+export function IsUpgradeActive(upgradeId) {
+    return upgrades[upgradeId]?.active || false;
 }
 
 export function GetDict() {
@@ -176,7 +215,7 @@ export function GetCurLocation() {
 }
 
 export function GetLevelOfUpgrade(tag) {
-    if (tag === "TagOfPasiveUpgrade") return 1;
+    if (tag === "TagOfPasiveUpgrade") return GetUpgradeLevel("upgrade_3") || 0;
     return 0;
 }
 
