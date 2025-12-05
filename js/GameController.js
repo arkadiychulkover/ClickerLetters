@@ -13,9 +13,7 @@ import {
   GetLevelOfUpgrade,
   GetRandomDictLetter,
   ChangeMusic,
-  ChangeLoc,
-  GetUpgradeLevel,
-  IsUpgradeActive
+  ChangeLoc
 } from "./DictController.js";
 
 import {
@@ -33,6 +31,7 @@ const lettersZone = document.getElementById("lettersZone");
 
 const activeLetters = new Map();
 let spawnLoopRunning = false;
+let passiveClickRunning = false;
 
 const BASE_SPAWN_DELAY = 2000;
 const MIN_SPAWN_DELAY = 200;
@@ -41,6 +40,14 @@ const LEVELS_PER_LOCATION = 5; // Меняем локацию каждые 5 у�
 
 function sleep(ms) {
   return new Promise((res) => setTimeout(res, ms));
+}
+
+function makeKeyboardEvent(key) {
+  return new KeyboardEvent("keydown", {
+    key: key,
+    code: `Key${key.toUpperCase()}`,
+    bubbles: true,
+  });
 }
 
 function createLetterElement(letter) {
@@ -90,6 +97,14 @@ function removeLetter(key) {
   activeLetters.delete(key);
 }
 
+function getRandomActiveLetter() {
+  const keys = Array.from(activeLetters.keys());
+
+  if (keys.length === 0) return null;
+
+  return keys[Math.floor(Math.random() * keys.length)];
+}
+
 async function virtualKeyHandled(key) {
   if (!activeLetters.has(key)) return;
   const meta = activeLetters.get(key);
@@ -103,7 +118,9 @@ async function virtualKeyHandled(key) {
   const moneyCof = GetMoneyCof();
   const expCof = GetExpCof();
   const moneyToAdd = Math.floor(1 * moneyCof) + 10;
+  console.warn(moneyToAdd + "money to add");
   const expToAdd = Math.floor(1 * expCof);
+  console.warn(moneyToAdd + "exp to add");
   const oldExp = GetExpLvl();
   const newExp = oldExp + expToAdd;
   const newMoney = GetMoney() + moneyToAdd;
@@ -119,6 +136,7 @@ async function virtualKeyHandled(key) {
     ChangeLevelOfVacabuular(newLvl);
 
     // Логика: каждые 5 уровней меняем локацию
+    // Уровни 0-4: локация 0, уровни 5-9: локация 1, уровни 10-14: локация 2, и т.д.
     const targetLocationIndex = Math.min(Math.floor(newLvl / LEVELS_PER_LOCATION), 4);
     const currentLocationIndex = GetIndexLocation();
     
@@ -185,6 +203,30 @@ function stopSpawnLoop() {
   spawnLoopRunning = false;
 }
 
+async function startPassiveClickLoop() {
+  if (passiveClickRunning) return;
+  passiveClickRunning = true;
+  try {
+    while (passiveClickRunning) {
+      const key = getRandomActiveLetter();
+      if (key) {
+        const ev = makeKeyboardEvent(key);
+        document.dispatchEvent(ev);
+      }
+      const upgradeSpeed = GetLevelOfUpgrade("TagOfPasiveUpgrade");
+      const delaySecs = Math.max(0.3, upgradeSpeed || 1);
+      // Исправлено: используем правильную задержку (в миллисекундах)
+      await sleep(delaySecs * 1000);
+    }
+  } finally {
+    passiveClickRunning = false;
+  }
+}
+
+function stopPassiveClickLoop() {
+  passiveClickRunning = false;
+}
+
 document.addEventListener("keydown", async (e) => {
   const key = String(e.key || "");
   console.log(key + " on klava");
@@ -216,8 +258,9 @@ function init() {
   // Восстанавливаем сохраненное состояние
   restoreGameState();
   
-  // Запускаем игровой цикл
+  // Запускаем игровые циклы
   startSpawnLoop();
+  startPassiveClickLoop();
 }
 
 init();

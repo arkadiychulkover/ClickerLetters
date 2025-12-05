@@ -38,7 +38,7 @@ let expLvl = GetValue("expLvl") || 0;
 let curMusic = GetValue("curMusic") || musics[0];
 let curLocation = GetValue("curLocation") || locations[0];
 
-// Загрузка апгрейдов из хранилища
+// ДОБАВЛЕНО: Загрузка апгрейдов из хранилища
 let upgrades = GetValue("upgrades") || {
     upgrade_1: { level: 0 },
     upgrade_2: { level: 0 },
@@ -48,43 +48,9 @@ let upgrades = GetValue("upgrades") || {
     upgrade_no_symbols: { level: 0 }
 };
 
-// Функция для сохранения апгрейдов
+// ДОБАВЛЕНО: Функция для сохранения апгрейдов
 function saveUpgrades() {
     ChangeValue("upgrades", upgrades);
-}
-
-// Функция для удаления всех заглавных букв
-function removeAllUppercase() {
-    const uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split('');
-    letters = letters.filter(letter => !uppercase.includes(letter));
-    ChangeValue("letters", letters);
-    return true;
-}
-
-// Функция для добавления всех цифр
-function addAllDigits() {
-    const digits = "0123456789".split('');
-    let added = false;
-    digits.forEach(digit => {
-        if (!letters.includes(digit)) {
-            letters.push(digit);
-            added = true;
-        }
-    });
-    if (added) {
-        ChangeValue("letters", letters);
-    }
-    return added;
-}
-
-// Функция для удаления всех спецсимволов
-function removeAllSymbols() {
-    const symbols = ['!', '"', '#', '$', '%', '&', "'", '(', ')', '*', '+',
-        ',', '-', '.', '/', ':', ';', '<', '=', '>', '?', '@',
-        '^', '_', '`', '|', '~'];
-    letters = letters.filter(letter => !symbols.includes(letter));
-    ChangeValue("letters", letters);
-    return true;
 }
 
 export function AddLetter(symbol) {
@@ -174,47 +140,27 @@ export function ChangeExpLvl(value) {
     return false;
 }
 
-// Функции для работы с апгрейдами
+// ДОБАВЛЕНО: Функции для работы с апгрейдами
 export function GetUpgradeLevel(upgradeId) {
     return upgrades[upgradeId]?.level || 0;
 }
 
 export function SetUpgradeLevel(upgradeId, level) {
     if (upgrades[upgradeId]) {
-        const oldLevel = upgrades[upgradeId].level;
         upgrades[upgradeId].level = level;
+        saveUpgrades();
         
-        // Применяем эффекты апгрейдов при повышении уровня
-        if (level > oldLevel) {
-            if (upgradeId === "upgrade_1") {
-                // Каждый уровень upgrade_1 дает +1 к множителю денег
-                ChangeMoneyCof(1 + level);
-                console.log(`Money coefficient updated to: ${1 + level}`);
-            } else if (upgradeId === "upgrade_2") {
-                // Каждый уровень upgrade_2 дает x2 к опыту (1, 2, 4, 8...)
-                const newExpCoef = Math.pow(2, level);
-                ChangeExpCof(newExpCoef);
-                console.log(`Experience coefficient updated to: ${newExpCoef}`);
-            } else if (upgradeId === "upgrade_3") {
-                // Активируем автокликер при первом уровне
-                upgrades[upgradeId].active = level > 0;
-                console.log(`Auto-clicker ${level > 0 ? 'activated' : 'deactivated'}`);
-            } else if (upgradeId === "upgrade_no_caps" && level === 1) {
-                // Удаляем заглавные буквы при первом уровне
-                removeAllUppercase();
-                console.log("Uppercase letters removed from dictionary");
-            } else if (upgradeId === "upgrade_more_digits" && level === 1) {
-                // Добавляем цифры при первом уровне
-                addAllDigits();
-                console.log("Digits added to dictionary");
-            } else if (upgradeId === "upgrade_no_symbols" && level === 1) {
-                // Удаляем спецсимволы при первом уровне
-                removeAllSymbols();
-                console.log("Special symbols removed from dictionary");
-            }
+        // Обновляем коэффициенты в зависимости от уровня апгрейда
+        if (upgradeId === "upgrade_1") {
+            // Каждый уровень upgrade_1 дает +1 к множителю денег
+            ChangeMoneyCof(1 + level);
+        } else if (upgradeId === "upgrade_2") {
+            // Каждый уровень upgrade_2 дает x2 к опыту
+            ChangeExpCof(level + 1);
+        } else if (upgradeId === "upgrade_3" && level > 0) {
+            upgrades[upgradeId].active = true;
         }
         
-        saveUpgrades();
         return true;
     }
     return false;
@@ -222,19 +168,6 @@ export function SetUpgradeLevel(upgradeId, level) {
 
 export function IsUpgradeActive(upgradeId) {
     return upgrades[upgradeId]?.active || false;
-}
-
-export function GetAutoClickerInterval() {
-    const level = GetUpgradeLevel("upgrade_3");
-    if (level === 0) return 0;
-    
-    // Базовая скорость: 1 клик в секунду (1000ms)
-    // Каждый уровень уменьшает интервал на 150ms
-    // Минимальный интервал: 300ms
-    const baseInterval = 1000;
-    const reductionPerLevel = 150;
-    const calculated = baseInterval - (level - 1) * reductionPerLevel;
-    return Math.max(300, calculated);
 }
 
 export function GetDict() {
