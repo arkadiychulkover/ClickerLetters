@@ -11,33 +11,65 @@ const TRANSLATIONS = {
         upg2_title: "Опыт x2", 
         upg2_desc: "Ускоренная прокачка уровня",
         upg3_title: "Авто-клик", 
-        upg3_desc: "Пассивный доход валюты"
+        upg3_desc: "Пассивный доход валюты",
+        upg4_title: "Удалить капслок",
+        upg4_desc: "Удаляет Заглавные буквы с каждым уровнем",
+        upg5_title: "Добавить цифры",
+        upg5_desc: "Добавляет цифры с каждым уровнем",
+        upg6_title: "Удалить спецсимволы",
+        upg6_desc: "Удаляет спецсимволы с каждым уровнем"
     },
-    EN: {
+    EN: 
+    {
         settings_title: "Settings", 
         lang_label: "Language", 
         music_vol: "Music", 
         sound_vol: "SFX",
         upgrades_title: "Upgrades", 
+
         upg1_title: "More Money", 
         upg1_desc: "More cash per click",
+
         upg2_title: "XP x2", 
         upg2_desc: "Faster level up",
+
         upg3_title: "Auto-click", 
-        upg3_desc: "Passive income"
+        upg3_desc: "Passive income",
+
+        upg4_title: "Remove Caps Lock",
+        upg4_desc: "Removes uppercase letters every level",
+
+        upg5_title: "Add Numbers",
+        upg5_desc: "Adds numbers every level",
+
+        upg6_title: "Remove Special Characters",
+        upg6_desc: "Removes special characters every level"
     },
-    UA: {
+    UA: 
+    {
         settings_title: "Налаштування", 
         lang_label: "Мова", 
         music_vol: "Музика", 
         sound_vol: "Звуки",
         upgrades_title: "Покращення", 
+
         upg1_title: "Більше валюти", 
         upg1_desc: "Більше грошей за клік",
+
         upg2_title: "Досвід x2", 
-        upg2_desc: "Прискорена прокачка",
+        upg2_desc: "Швидше підвищення рівня",
+
         upg3_title: "Авто-клік", 
-        upg3_desc: "Пасивний дохід"
+        upg3_desc: "Пасивний дохід",
+
+        upg4_title: "Прибрати капслок",
+        upg4_desc: "Зменшує кількість великих букв з кожним рівнем",
+
+        upg5_title: "Додати цифри",
+        upg5_desc: "Додає цифри з кожним рівнем",
+
+        upg6_title: "Прибрати спецсимволи",
+        upg6_desc: "Прибирає спецсимволи з кожним рівнем"
     }
 };
 

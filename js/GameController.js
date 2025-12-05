@@ -29,7 +29,7 @@ const activeLetters = new Map();
 let spawnLoopRunning = false;
 let passiveClickRunning = false;
 
-const BASE_SPAWN_DELAY = 500000;
+const BASE_SPAWN_DELAY = 2000;
 const MIN_SPAWN_DELAY = 200;
 const LETTER_LIFE = 3000;
 
