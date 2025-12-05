@@ -130,36 +130,28 @@ async function virtualKeyHandled(key) {
   const newLvl = Math.floor(newExp / 100);
 
   if (newLvl > oldLvl) {
+      console.warn(`New lvl`);
     ChangeLevelOfVacabuular(newLvl);
-    
-    // Определяем, на какую локацию нужно перейти в зависимости от уровня
-    // Например: каждые 5 уровней меняем локацию (уровни: 5, 10, 15, 20, 25)
-    const LEVELS_PER_LOCATION = 5;
     const currentLocationIndex = GetIndexLocation();
     
-    // Рассчитываем целевую локацию (0-4 для 5 локаций)
     const targetLocationIndex = Math.min(Math.floor((newLvl - 1) / LEVELS_PER_LOCATION), 4);
     
     console.log(`Level: ${newLvl}, Current location: ${currentLocationIndex}, Target location: ${targetLocationIndex}`);
     
     if (targetLocationIndex > currentLocationIndex) {
-      console.log(`Changing location to ${targetLocationIndex}`);
+      console.warn(`Changing location to ${targetLocationIndex}`);
       
-      // Меняем фон
       ChangeBacgroundImg(targetLocationIndex);
       
-      // Меняем музыку (можно привязать к локации или использовать отдельную логику)
-      const targetMusicIndex = targetLocationIndex; // или другая логика
+      const targetMusicIndex = targetLocationIndex; 
       ChangeBackgroundMusic(targetMusicIndex);
       
-      // Сохраняем изменения
       ChangeLoc(targetLocationIndex);
       ChangeMusic(targetMusicIndex);
       
       console.log(`Location changed to ${targetLocationIndex}, music to ${targetMusicIndex}`);
     }
     
-    // Обновляем прогресс шкалы
     const percent = newExp % 100;
     ChangeShkalaOfVacabular(percent);
     
@@ -239,12 +231,15 @@ document.addEventListener("keydown", async (e) => {
 function restoreGameState() {
   const savedLocIndex = GetIndexLocation();
   const savedMusIndex = GetIndexMus();
+  const exp = GetExpLvl();
+  const lvl = Math.floor(exp / 100)
   
-  console.log(`Restoring game state: location=${savedLocIndex}, music=${savedMusIndex}`);
+  console.log(`Restoring game state: location=${savedLocIndex}, music=${savedMusIndex}, level=${lvl}`);
   
   // Восстанавливаем фон и музыку
   ChangeBacgroundImg(savedLocIndex);
   ChangeBackgroundMusic(savedMusIndex);
+  ChangeLevelOfVacabuular(lvl);
 }
 
 function init() {

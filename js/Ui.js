@@ -1,6 +1,6 @@
 "use strict"
 
-import { GetExpLvl } from "./DictController";
+//import { GetExpLvl } from "./DictController";
 
 const TRANSLATIONS = {
     RU: {
@@ -443,8 +443,6 @@ document.addEventListener('DOMContentLoaded', () => {
     catch (error) {
         console.error("Error loading saved state:", error);
         // Устанавливаем значения по умолчанию
-        ChangeBacgroundImg(0);
-        ChangeBackgroundMusic(0);
     }
     
     InitAudio();
