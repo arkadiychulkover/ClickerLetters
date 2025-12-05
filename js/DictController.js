@@ -2,8 +2,6 @@
 
 import { AddValue, ChangeValue, GetValue } from "./LocalStorageController.js";
 
-/* ---------------- ИНИЦИАЛИЗАЦИЯ ---------------- */
-
 const defaultLettersDict = [
     ..."ABCDEFGHIJKLMNOPQRSTUVWXYZ",
     ..."abcdefghijklmnopqrstuvwxyz",
@@ -18,8 +16,19 @@ if (!Array.isArray(letters) || letters.length === 0) {
     AddValue("letters", letters);
 }
 
-let musics = GetValue("musics") || ["1", "2", "3"];
-let locations = GetValue("locations") || ["1", "2", "3"];
+// Обновляем массивы до 5 элементов
+let musics = GetValue("musics");
+if (!Array.isArray(musics) || musics.length === 0) {
+    musics = ["1", "2", "3", "4", "5"]; // 5 музыкальных треков
+    AddValue("musics", musics);
+}
+
+let locations = GetValue("locations");
+if (!Array.isArray(locations) || locations.length === 0) {
+    locations = ["1", "2", "3", "4", "5"]; // 5 локаций
+    AddValue("locations", locations);
+}
+
 let money = GetValue("money") || 0;
 let moneyCoef = GetValue("moneyCoef") || 1;
 let expCoef = GetValue("expCoef") || 1;
@@ -28,8 +37,6 @@ let indexofLoc = GetValue("indexofLoc") || 0;
 let expLvl = GetValue("expLvl") || 0;
 let curMusic = GetValue("curMusic") || musics[0];
 let curLocation = GetValue("curLocation") || locations[0];
-
-/* ---------------- ФУНКЦИИ ДЛЯ БУКВ ---------------- */
 
 export function AddLetter(symbol) {
     if (!letters.includes(symbol)) {
@@ -50,8 +57,6 @@ export function DeleteChar(symbol) {
     return false;
 }
 
-/* ---------------- ИЗМЕНЕНИЕ КОЭФФИЦИЕНТОВ ---------------- */
-
 export function ChangeMoneyCof(number) {
     if (moneyCoef !== number) {
         moneyCoef = number;
@@ -70,8 +75,6 @@ export function ChangeExpCof(number) {
     return false;
 }
 
-/* ---------------- ДЕНЬГИ ---------------- */
-
 export function ChangeMoney(number) {
     if (money !== number) {
         money = number;
@@ -81,33 +84,43 @@ export function ChangeMoney(number) {
     return false;
 }
 
-/* ---------------- ЛОКАЦИИ ---------------- */
-
 export function ChangeLoc(index) {
-    if (index < locations.length) {
+    console.warn("Changing location to index:", index);
+    console.warn("Locations array length:", locations.length);
+    
+    if (index < locations.length && index >= 0) {
         indexofLoc = index;
         curLocation = locations[index];
         ChangeValue("indexofLoc", indexofLoc);
         ChangeValue("curLocation", curLocation);
+
+        console.warn("Location changed to:", index);
+        console.warn("Saved indexofLoc:", GetValue("indexofLoc"));
+        console.warn("Saved curLocation:", GetValue("curLocation"));
         return true;
+    } else {
+        console.error("Invalid location index:", index);
+        return false;
     }
-    return false;
 }
 
-/* ---------------- МУЗЫКА ---------------- */
-
 export function ChangeMusic(index) {
-    if (index < musics.length) {
+    console.warn("Changing music to index:", index);
+    console.warn("Music array length:", musics.length);
+    
+    if (index < musics.length && index >= 0) {
         indexofMus = index;
         curMusic = musics[index];
         ChangeValue("indexofMus", indexofMus);
         ChangeValue("curMusic", curMusic);
+        
+        console.warn("Music changed to:", index);
         return true;
+    } else {
+        console.error("Invalid music index:", index);
+        return false;
     }
-    return false;
 }
-
-/* ---------------- УРОВНИ ---------------- */
 
 export function ChangeExpLvl(value) {
     if (expLvl !== value) {
@@ -117,8 +130,6 @@ export function ChangeExpLvl(value) {
     }
     return false;
 }
-
-/* ---------------- ГЕТТЕРЫ ---------------- */
 
 export function GetDict() {
     return letters;
@@ -165,7 +176,6 @@ export function GetCurLocation() {
 }
 
 export function GetLevelOfUpgrade(tag) {
-    // пример: возвращаем 1 для пассивного клика, иначе 0
     if (tag === "TagOfPasiveUpgrade") return 1;
     return 0;
 }

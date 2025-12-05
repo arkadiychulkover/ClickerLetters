@@ -1,4 +1,7 @@
 "use strict"
+
+import { GetExpLvl } from "./DictController";
+
 const TRANSLATIONS = {
     RU: {
         settings_title: "Настройки", 
@@ -344,8 +347,9 @@ export function ChangeAmountOfValute(amount) {
 export function ChangeBacgroundImg(index = 0) {
     const bgLayer = document.getElementById('bgLayer');
 
+    console.warn("Bg index: "+ index)
     if (index > UI_STATE.backgrounds.length) {
-        console.error("index error")
+        console.error("index error bg")
         return false;
     }
     else
@@ -373,13 +377,14 @@ export function ChangeBackgroundMusic(index = 0) {
     const audio = document.getElementById('bgMusic');
 
     if (index >= UI_STATE.musicTracks.length) {
-        console.error("index error");
+        console.error("index error mus");
         return false;
     } else {
         UI_STATE.musicIndex = index;
     }
 
     const newTrack = UI_STATE.musicTracks[UI_STATE.musicIndex];
+    console.warn("Mus index: "+ index)
 
     if (audio && newTrack) {
         const tempAudio = new Audio();
@@ -418,10 +423,30 @@ export function InitAudio() {
     return true;
 }
 
+export function GetIndexLocation() {
+    return UI_STATE.bgIndex;
+}
+
+export function GetIndexMus() {
+    return UI_STATE.musicIndex;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     initListeners();
     applyLanguage(UI_STATE.currentLang);
-    ChangeBacgroundImg();
+    
+    try 
+    {
+        let level = getElementById("InitAudio");
+        level.innerText = GetExpLvl();
+    } 
+    catch (error) {
+        console.error("Error loading saved state:", error);
+        // Устанавливаем значения по умолчанию
+        ChangeBacgroundImg(0);
+        ChangeBackgroundMusic(0);
+    }
+    
     InitAudio();
     
     Object.keys(UI_STATE.upgrades).forEach(upgradeId => {

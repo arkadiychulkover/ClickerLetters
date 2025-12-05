@@ -11,7 +11,9 @@ import {
   GetIndexLocation,
   GetIndexMus,
   GetLevelOfUpgrade,
-  GetRandomDictLetter
+  GetRandomDictLetter,
+  ChangeMusic,
+  ChangeLoc
 } from "./DictController.js";
 
 import {
@@ -20,7 +22,9 @@ import {
   ChangeLevelOfVacabuular,
   ChangeShkalaOfVacabular,
   ChangeAmountOfValute,
-  GetLevelOfUpgrade as UIGetLevelOfUpgrade
+  GetLevelOfUpgrade as UIGetLevelOfUpgrade,
+  GetIndexLocation as UIGetIndexLocation,
+  GetIndexMus as UIGetIndexMus
 } from "./Ui.js";
 
 const lettersZone = document.getElementById("lettersZone");
@@ -72,7 +76,6 @@ function spawnLetter(letter) {
   meta.timeoutId = setTimeout(() => {
     if (!meta.removed) removeLetter(letter);
   }, LETTER_LIFE);
-
 }
 
 function removeLetter(key) {
@@ -123,107 +126,134 @@ async function virtualKeyHandled(key) {
   ChangeAmountOfValute(newMoney);
   ChangeExpLvl(newExp);
 
-  const locationIndex = GetIndexLocation();
   const oldLvl = Math.floor(oldExp / 100);
   const newLvl = Math.floor(newExp / 100);
 
   if (newLvl > oldLvl) {
     ChangeLevelOfVacabuular(newLvl);
-
-    if (newLvl > locationIndex && locationIndex < 5) {
-      ChangeBacgroundImg(newLvl);
-      const indexMusic = GetIndexMus();
-      ChangeBackgroundMusic(indexMusic + 1);
+    
+    // Определяем, на какую локацию нужно перейти в зависимости от уровня
+    // Например: каждые 5 уровней меняем локацию (уровни: 5, 10, 15, 20, 25)
+    const LEVELS_PER_LOCATION = 5;
+    const currentLocationIndex = GetIndexLocation();
+    
+    // Рассчитываем целевую локацию (0-4 для 5 локаций)
+    const targetLocationIndex = Math.min(Math.floor((newLvl - 1) / LEVELS_PER_LOCATION), 4);
+    
+    console.log(`Level: ${newLvl}, Current location: ${currentLocationIndex}, Target location: ${targetLocationIndex}`);
+    
+    if (targetLocationIndex > currentLocationIndex) {
+      console.log(`Changing location to ${targetLocationIndex}`);
+      
+      // Меняем фон
+      ChangeBacgroundImg(targetLocationIndex);
+      
+      // Меняем музыку (можно привязать к локации или использовать отдельную логику)
+      const targetMusicIndex = targetLocationIndex; // или другая логика
+      ChangeBackgroundMusic(targetMusicIndex);
+      
+      // Сохраняем изменения
+      ChangeLoc(targetLocationIndex);
+      ChangeMusic(targetMusicIndex);
+      
+      console.log(`Location changed to ${targetLocationIndex}, music to ${targetMusicIndex}`);
     }
+    
+    // Обновляем прогресс шкалы
+    const percent = newExp % 100;
+    ChangeShkalaOfVacabular(percent);
+    
+    console.log(`+${moneyToAdd} money, +${expToAdd} exp, level: ${newLvl}`);
+  } else {
+    // Если уровень не изменился, просто обновляем прогресс
+    const percent = newExp % 100;
+    ChangeShkalaOfVacabular(percent);
   }
-
-  const percent = newExp % 100;
-  ChangeShkalaOfVacabular(percent);
-
-  console.log(`+${moneyToAdd} money, +${expToAdd} exp`);
 }
 
-async function startSpawnLoop() 
-{
-    if (spawnLoopRunning) return;
-    spawnLoopRunning = true;
+async function startSpawnLoop() {
+  if (spawnLoopRunning) return;
+  spawnLoopRunning = true;
 
-    try 
-    {
-        while (spawnLoopRunning) {
-        const dict = GetDict();
+  try {
+    while (spawnLoopRunning) {
+      const dict = GetDict();
 
-        if (!Array.isArray(dict) || dict.length === 0) {
-            await sleep(1000);
-            continue;
-        }
+      if (!Array.isArray(dict) || dict.length === 0) {
+        await sleep(1000);
+        continue;
+      }
 
-        const letter = GetRandomDictLetter();
+      const letter = GetRandomDictLetter();
 
-        if (letter) spawnLetter(letter);
+      if (letter) spawnLetter(letter);
 
-        const level = GetExpLvl();
-        const speedFactor = 1 + level / 5;
-        let delay = Math.max(MIN_SPAWN_DELAY, BASE_SPAWN_DELAY / speedFactor);
+      const level = GetExpLvl();
+      const speedFactor = 1 + level / 5;
+      let delay = Math.max(MIN_SPAWN_DELAY, BASE_SPAWN_DELAY / speedFactor);
 
-        delay = Math.floor(delay * (0.6 + Math.random() * 0.8));
-        await sleep(delay);
-        }
+      delay = Math.floor(delay * (0.6 + Math.random() * 0.8));
+      await sleep(delay / 10);
     }
-    finally 
-    {
-        spawnLoopRunning = false;
-    }
+  } finally {
+    spawnLoopRunning = false;
+  }
 }
 
-function stopSpawnLoop() 
-{
+function stopSpawnLoop() {
   spawnLoopRunning = false;
 }
 
-async function startPassiveClickLoop() 
-{
-    if (passiveClickRunning) return;
-    passiveClickRunning = true;
-    try 
-    {
-        while (passiveClickRunning) 
-        {
-            const key = getRandomActiveLetter();
-            if (key) 
-            {
-                const ev = makeKeyboardEvent(key);
-                document.dispatchEvent(ev);
-            }
-            const upgradeSpeed = GetLevelOfUpgrade("TagOfPasiveUpgrade");
-            const delaySecs = Math.max(0.3, upgradeSpeed || 1);
-            await sleep(delaySecs * 1000);
-        }
-    } 
-    finally 
-    {
-        passiveClickRunning = false;
+async function startPassiveClickLoop() {
+  if (passiveClickRunning) return;
+  passiveClickRunning = true;
+  try {
+    while (passiveClickRunning) {
+      const key = getRandomActiveLetter();
+      if (key) {
+        const ev = makeKeyboardEvent(key);
+        document.dispatchEvent(ev);
+      }
+      const upgradeSpeed = GetLevelOfUpgrade("TagOfPasiveUpgrade");
+      const delaySecs = Math.max(0.3, upgradeSpeed || 1);
+      await sleep(delaySecs * 100);
     }
+  } finally {
+    passiveClickRunning = false;
+  }
 }
 
-function stopPassiveClickLoop()
-{
+function stopPassiveClickLoop() {
   passiveClickRunning = false;
 }
 
-document.addEventListener("keydown", async (e) =>
-{
-    const key = String(e.key || "");
-    console.log(key + " on klava");
-    if (!key) return;
-    if (!activeLetters.has(key)) return;
-    await virtualKeyHandled(key);
+document.addEventListener("keydown", async (e) => {
+  const key = String(e.key || "");
+  console.log(key + " on klava");
+  if (!key) return;
+  if (!activeLetters.has(key)) return;
+  await virtualKeyHandled(key);
 });
 
-function init() 
-{
-    startSpawnLoop();
-    startPassiveClickLoop();
+// Функция для восстановления сохраненного состояния
+function restoreGameState() {
+  const savedLocIndex = GetIndexLocation();
+  const savedMusIndex = GetIndexMus();
+  
+  console.log(`Restoring game state: location=${savedLocIndex}, music=${savedMusIndex}`);
+  
+  // Восстанавливаем фон и музыку
+  ChangeBacgroundImg(savedLocIndex);
+  ChangeBackgroundMusic(savedMusIndex);
+}
+
+function init() {
+  // Восстанавливаем сохраненное состояние
+  restoreGameState();
+  
+  // Запускаем игровые циклы
+  startSpawnLoop();
+  startPassiveClickLoop();
 }
 
 init();
