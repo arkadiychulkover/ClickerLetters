@@ -36,6 +36,7 @@ let passiveClickRunning = false;
 const BASE_SPAWN_DELAY = 2000;
 const MIN_SPAWN_DELAY = 200;
 const LETTER_LIFE = 3000;
+const LEVELS_PER_LOCATION = 5; // Меняем локацию каждые 5 уровней
 
 function sleep(ms) {
   return new Promise((res) => setTimeout(res, ms));
@@ -130,22 +131,26 @@ async function virtualKeyHandled(key) {
   const newLvl = Math.floor(newExp / 100);
 
   if (newLvl > oldLvl) {
-      console.warn(`New lvl`);
     ChangeLevelOfVacabuular(newLvl);
+
+    // Логика: каждые 5 уровней меняем локацию
+    // Уровни 0-4: локация 0, уровни 5-9: локация 1, уровни 10-14: локация 2, и т.д.
+    const targetLocationIndex = Math.min(Math.floor(newLvl / LEVELS_PER_LOCATION), 4);
     const currentLocationIndex = GetIndexLocation();
-    
-    const targetLocationIndex = Math.min(Math.floor((newLvl - 1) / LEVELS_PER_LOCATION), 4);
     
     console.log(`Level: ${newLvl}, Current location: ${currentLocationIndex}, Target location: ${targetLocationIndex}`);
     
-    if (targetLocationIndex > currentLocationIndex) {
-      console.warn(`Changing location to ${targetLocationIndex}`);
+    if (targetLocationIndex > currentLocationIndex && targetLocationIndex < 5) {
+      console.log(`Changing location to ${targetLocationIndex}`);
       
+      // Меняем фон (локацию)
       ChangeBacgroundImg(targetLocationIndex);
       
-      const targetMusicIndex = targetLocationIndex; 
+      // Меняем музыку (обычно на ту же, что и локация)
+      const targetMusicIndex = targetLocationIndex;
       ChangeBackgroundMusic(targetMusicIndex);
       
+      // Сохраняем изменения
       ChangeLoc(targetLocationIndex);
       ChangeMusic(targetMusicIndex);
       
@@ -232,7 +237,7 @@ function restoreGameState() {
   const savedLocIndex = GetIndexLocation();
   const savedMusIndex = GetIndexMus();
   const exp = GetExpLvl();
-  const lvl = Math.floor(exp / 100)
+  const lvl = Math.floor(exp / 100);
   
   console.log(`Restoring game state: location=${savedLocIndex}, music=${savedMusIndex}, level=${lvl}`);
   
@@ -240,6 +245,10 @@ function restoreGameState() {
   ChangeBacgroundImg(savedLocIndex);
   ChangeBackgroundMusic(savedMusIndex);
   ChangeLevelOfVacabuular(lvl);
+  
+  // Также восстанавливаем прогресс шкалы
+  const percent = exp % 100;
+  ChangeShkalaOfVacabular(percent);
 }
 
 function init() {
