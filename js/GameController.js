@@ -30,7 +30,7 @@ const activeLetters = new Map();
 let spawnLoopRunning = false;
 let passiveClickRunning = false;
 
-const BASE_SPAWN_DELAY = 2000;
+const BASE_SPAWN_DELAY = 3000;
 const MIN_SPAWN_DELAY = 200;
 const LETTER_LIFE = 3000;
 
@@ -47,19 +47,27 @@ function makeKeyboardEvent(key) {
 }
 
 function createLetterElement(letter) {
-  const letterEl = document.createElement("div");
+  const el = document.createElement("div");
+  el.classList.add("letter", `letter-${letter}`);
+  el.textContent = letter;
+  el.style.position = "absolute";
 
-  letterEl.classList.add("letter", `letter-${letter}`);
-  letterEl.textContent = letter;
-  letterEl.style.position = "absolute";
+  const safe = 10;
 
-  letterEl.style.left = `${Math.floor(Math.random() * 100)}%`;
-  letterEl.style.top = `${Math.floor(Math.random() * 100)}%`;
+  const zoneRect = lettersZone.getBoundingClientRect();
 
-  return letterEl;
+  const x = Math.random() * (zoneRect.width - safe * 2) + safe;
+  const y = Math.random() * (zoneRect.height - safe * 2) + safe;
+
+  el.style.left = x + "px";
+  el.style.top = y + "px";
+
+  return el;
 }
 
+
 function spawnLetter(letter) {
+  if (!gameStarted) return;
   if (activeLetters.has(letter)) return;
 
   const el = createLetterElement(letter);
@@ -102,6 +110,7 @@ function getRandomActiveLetter() {
 }
 
 async function virtualKeyHandled(key) {
+  if (!gameStarted) return;
   
   if (!activeLetters.has(key)) return;
   const meta = activeLetters.get(key);
@@ -115,7 +124,7 @@ async function virtualKeyHandled(key) {
   const moneyCof = GetMoneyCof();
   const expCof = GetExpCof();
   const moneyToAdd = Math.floor(1 * moneyCof);
-  const expToAdd = Math.floor(10 * expCof);
+  const expToAdd = Math.floor(1 * expCof);
   const oldExp = GetExpLvl();
   const newExp = oldExp + expToAdd;
   const newMoney = GetMoney() + moneyToAdd;
@@ -150,23 +159,29 @@ async function startSpawnLoop() {
 
   try {
     while (spawnLoopRunning) {
-      
-      const dict = GetDict();
 
+      if (!gameStarted) {
+        await sleep(100);
+        continue;
+      }
+
+      const dict = GetDict();
       if (!Array.isArray(dict) || dict.length === 0) {
-        await sleep(1000);
+        await sleep(500);
         continue;
       }
 
       const letter = GetRandomDictLetter();
-
       if (letter) spawnLetter(letter);
 
-      const level = GetExpLvl();
-      const speedFactor = 1 + level / 5;
-      let delay = Math.max(MIN_SPAWN_DELAY, BASE_SPAWN_DELAY / speedFactor);
+      const currentLevel = Math.floor(GetExpLvl() / 100);
 
-      delay = Math.floor(delay * (0.6 + Math.random() * 0.8));
+      let delay = LETTER_LIFE / (1 + currentLevel * 0.5);
+
+      delay = Math.max(delay, MIN_SPAWN_DELAY);
+
+      delay *= 0.9 + Math.random() * 0.2;
+
       await sleep(delay);
     }
   } finally {
@@ -174,35 +189,43 @@ async function startSpawnLoop() {
   }
 }
 
-function stopSpawnLoop() {
-  spawnLoopRunning = false;
-}
 
 async function startPassiveClickLoop() {
   if (passiveClickRunning) return;
   passiveClickRunning = true;
-  try {
-    while (passiveClickRunning) {
-      
+
+  
+  while (passiveClickRunning) {
+
+      if (!gameStarted) {
+          await sleep(100);
+          continue;
+      }
+
       const key = getRandomActiveLetter();
       if (key) {
-        const ev = makeKeyboardEvent(key);
-        document.dispatchEvent(ev);
+          document.dispatchEvent(makeKeyboardEvent(key));
       }
-      const upgradeSpeed = GetLevelOfUpgrade("TagOfPasiveUpgrade");
-      const delaySecs = Math.max(0.3, upgradeSpeed || 1);
-      await sleep(delaySecs * 1000);
-    }
-  } finally {
-    passiveClickRunning = false;
+
+      const lvl = GetLevelOfUpgrade("TagOfPasiveUpgrade");
+
+      const maxLevel = 31;
+      const maxDelay = 3.0;
+      const minDelay = 0.1;
+
+      const progress = Math.min(Math.max(lvl, 0), maxLevel) / maxLevel;
+      const delay = maxDelay - progress * (maxDelay - minDelay);
+
+      await sleep(delay * 1000);
   }
 }
 
-function stopPassiveClickLoop() {
-  passiveClickRunning = false;
-}
 
 document.addEventListener("keydown", async (e) => {
+  if (!gameStarted) {
+    e.preventDefault();
+    return;
+  }
   
   const key = String(e.key || "");
   console.log(key + " on klava");
@@ -211,9 +234,21 @@ document.addEventListener("keydown", async (e) => {
   await virtualKeyHandled(key);
 });
 
+document.addEventListener("click", (e) => {
+  if (e.target.classList.contains("letter")) {
+    if (!gameStarted) {
+      e.preventDefault();
+      e.stopPropagation();
+      return false;
+    }
+  }
+}, true);
+
+
 function init() {
   startSpawnLoop();
   startPassiveClickLoop();
+  
 }
 
 init();
