@@ -264,6 +264,8 @@ function restoreGameState() {
   // Также восстанавливаем прогресс шкалы
   const percent = exp % 100;
   ChangeShkalaOfVacabular(percent);
+
+  //
 }
 
 function init() {
