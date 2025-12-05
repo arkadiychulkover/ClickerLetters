@@ -79,8 +79,16 @@ const TRANSLATIONS = {
 
 const UI_STATE = {
     currentLang: "RU",
-    backgrounds: ["../assets/1.jpg", "../assets/2.jpg", "../assets/3.jpg", "../assets/4.jpg", "../assets/5.jpg"],
-    musicTracks: ["../assets/1.mp3", "../assets/2.mp3", "../assets/3.mp3", "../assets/4.mp3", "../assets/5.mp3"],
+    backgrounds: ["http://www.superbis.com.ua/wp-content/uploads/2025/12/1.jpg",  // CHANGED!!!
+                    "http://www.superbis.com.ua/wp-content/uploads/2025/12/2.jpg",
+                    "http://www.superbis.com.ua/wp-content/uploads/2025/12/3.jpg",
+                    "http://www.superbis.com.ua/wp-content/uploads/2025/12/4.jpg",
+                    "http://www.superbis.com.ua/wp-content/uploads/2025/12/5.jpg"],
+    musicTracks: ["http://www.superbis.com.ua/wp-content/uploads/2025/12/1.mp3",
+                    "http://www.superbis.com.ua/wp-content/uploads/2025/12/2.mp3",
+                    "http://www.superbis.com.ua/wp-content/uploads/2025/12/3.mp3",
+                    "http://www.superbis.com.ua/wp-content/uploads/2025/12/4.mp3",
+                    "http://www.superbis.com.ua/wp-content/uploads/2025/12/5.mp3"],
     bgIndex: 0,
     musicIndex: 0,
     upgrades: {
