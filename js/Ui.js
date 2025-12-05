@@ -1,7 +1,17 @@
 "use strict"
 
-import { ChangeMoney } from "../js/DictController.js";
-import { GetValue, ChangeValue, AddValue } from "./LocalStorageController.js";
+import { 
+    ChangeMoney, 
+    GetMoneyCof, 
+    GetExpCof,
+    ChangeMoneyCof,
+    ChangeExpCof,
+    GetUpgradeLevel,
+    SetUpgradeLevel,
+    IsUpgradeActive,
+    GetAutoClickerInterval
+} from "./DictController.js";
+import { GetValue, ChangeValue } from "./LocalStorageController.js";
 
 const TRANSLATIONS = {
     RU: {
@@ -30,22 +40,16 @@ const TRANSLATIONS = {
         music_vol: "Music", 
         sound_vol: "SFX",
         upgrades_title: "Upgrades", 
-
         upg1_title: "More Money", 
         upg1_desc: "More cash per click",
-
         upg2_title: "XP x2", 
         upg2_desc: "Faster level up",
-
         upg3_title: "Auto-click", 
         upg3_desc: "Passive income",
-
         upg4_title: "Remove Caps Lock",
         upg4_desc: "Removes uppercase letters every level",
-
         upg5_title: "Add Numbers",
         upg5_desc: "Adds numbers every level",
-
         upg6_title: "Remove Special Characters",
         upg6_desc: "Removes special characters every level"
     },
@@ -56,22 +60,16 @@ const TRANSLATIONS = {
         music_vol: "Музика", 
         sound_vol: "Звуки",
         upgrades_title: "Покращення", 
-
         upg1_title: "Більше валюти", 
         upg1_desc: "Більше грошей за клік",
-
         upg2_title: "Досвід x2", 
         upg2_desc: "Швидше підвищення рівня",
-
         upg3_title: "Авто-клік", 
         upg3_desc: "Пасивний дохід",
-
         upg4_title: "Прибрати капслок",
         upg4_desc: "Зменшує кількість великих букв з кожним рівнем",
-
         upg5_title: "Додати цифри",
         upg5_desc: "Додає цифри з кожним рівнем",
-
         upg6_title: "Прибрати спецсимволи",
         upg6_desc: "Прибирає спецсимволи з кожним рівнем"
     }
@@ -79,7 +77,7 @@ const TRANSLATIONS = {
 
 const UI_STATE = {
     currentLang: "RU",
-    backgrounds: ["http://www.superbis.com.ua/wp-content/uploads/2025/12/1.jpg",  // CHANGED!!!
+    backgrounds: ["http://www.superbis.com.ua/wp-content/uploads/2025/12/1.jpg",
                     "http://www.superbis.com.ua/wp-content/uploads/2025/12/2.jpg",
                     "http://www.superbis.com.ua/wp-content/uploads/2025/12/3.jpg",
                     "http://www.superbis.com.ua/wp-content/uploads/2025/12/4.jpg",
@@ -110,20 +108,19 @@ function calcPrice(basePrice, level) {
     return Math.floor(basePrice * Math.pow(1.5, level));
 }
 
-function loadUpgradesFromStorage() { // CHANGED!!! New function
-    const saved = GetValue("game_upgrades");
-    if (!saved || typeof saved !== "object") return;
-    
-    Object.keys(saved).forEach(upgradeId => {
-        const target = UI_STATE.upgrades[upgradeId];
-        const source = saved[upgradeId];
-        
-        if (target && source) {
-            target.level = source.level || 0;
-            target.price = calcPrice(target.basePrice, target.level);
+function loadUpgradesFromStorage() {
+    Object.keys(UI_STATE.upgrades).forEach(upgradeId => {
+        const level = GetUpgradeLevel(upgradeId);
+        if (level > 0) {
+            UI_STATE.upgrades[upgradeId].level = level;
+            UI_STATE.upgrades[upgradeId].price = calcPrice(
+                UI_STATE.upgrades[upgradeId].basePrice, 
+                level
+            );
             
-            if (upgradeId === "upgrade_3" && target.level > 0 && !target.active) {
-                target.active = true;
+            // Восстанавливаем состояние автоклика
+            if (upgradeId === "upgrade_3" && level > 0) {
+                UI_STATE.upgrades.upgrade_3.active = true;
                 startAutoClick();
             }
         }
@@ -132,7 +129,7 @@ function loadUpgradesFromStorage() { // CHANGED!!! New function
     updateUpgradesUI();
 }
 
-function saveUpgradesToStorage() { // CHANGED!!! New function
+function saveUpgradesToStorage() {
     const out = {};
     Object.entries(UI_STATE.upgrades).forEach(([id, upgrade]) => {
         out[id] = {
@@ -143,18 +140,18 @@ function saveUpgradesToStorage() { // CHANGED!!! New function
     ChangeValue("game_upgrades", out);
 }
 
-function saveLanguageToStorage() { // CHANGED!!! New function
+function saveLanguageToStorage() {
     ChangeValue("game_language", UI_STATE.currentLang);
 }
 
-function loadLanguageFromStorage() {  // CHANGED!!! New function
+function loadLanguageFromStorage() {
     const savedLang = GetValue("game_language");
     if (savedLang && TRANSLATIONS[savedLang]) {
         UI_STATE.currentLang = savedLang;
     }
 }
 
-function updateUpgradeElement(upgradeId) { // CHANGED!!! New function
+function updateUpgradeElement(upgradeId) {
     const upgrade = UI_STATE.upgrades[upgradeId];
     const el = document.getElementById(upgradeId);
     if (!el) return;
@@ -163,9 +160,22 @@ function updateUpgradeElement(upgradeId) { // CHANGED!!! New function
     const descEl = el.querySelector(".upgrade-info p");
     const btn = el.querySelector(".buy-btn");
     
-    if (upgrade.maxLvl !== undefined && upgrade.level >= upgrade.maxLvl) {
+    if (upgradeId === "upgrade_no_caps" && upgrade.level >= 1) {
+        if (priceEl) priceEl.innerText = "Куплено";
+        if (btn) btn.disabled = true;
+        el.classList.add("purchased");
+    } else if (upgradeId === "upgrade_more_digits" && upgrade.level >= 1) {
+        if (priceEl) priceEl.innerText = "Куплено";
+        if (btn) btn.disabled = true;
+        el.classList.add("purchased");
+    } else if (upgradeId === "upgrade_no_symbols" && upgrade.level >= 1) {
+        if (priceEl) priceEl.innerText = "Куплено";
+        if (btn) btn.disabled = true;
+        el.classList.add("purchased");
+    } else if (upgrade.maxLvl !== undefined && upgrade.level >= upgrade.maxLvl) {
         if (priceEl) priceEl.innerText = "Макс. уровень";
         if (btn) btn.disabled = true;
+        el.classList.add("purchased");
     } else {
         if (priceEl) priceEl.innerText = `Ł${upgrade.price}`;
         if (btn) btn.disabled = false;
@@ -179,7 +189,7 @@ function updateUpgradeElement(upgradeId) { // CHANGED!!! New function
     }
 }
 
-function updateUpgradesUI() { // CHANGED!!! New function
+function updateUpgradesUI() {
     Object.keys(UI_STATE.upgrades).forEach(upgradeId => {
         updateUpgradeElement(upgradeId);
     });
@@ -259,7 +269,7 @@ function applyLanguage(lang) {
         }
     });
 
-    updateUpgradesUI();  // CHANGED!!! New string
+    updateUpgradesUI();
     
     saveLanguageToStorage();
 }
@@ -276,10 +286,11 @@ function addMoney(amount) {
     const el = document.getElementById("moneyValue");
     if (el) {
         let currentMoney = parseInt(el.innerText.replace('Ł', '')) || 0;
-        // Учет улучшения для увеличения дохода
-        if (UI_STATE.upgrades.upgrade_1.level > 0) {
-            amount *= (1 + UI_STATE.upgrades.upgrade_1.level);
-        }
+        
+        // Используем коэффициент из DictController
+        const moneyCof = GetMoneyCof();
+        amount *= moneyCof;
+        
         currentMoney += amount;
         el.innerText = `Ł${currentMoney}`;
         
@@ -291,10 +302,9 @@ function addMoney(amount) {
 }
 
 function addExperience(amount) {
-    // Учет улучшения для ускорения прокачки
-    if (UI_STATE.upgrades.upgrade_2.level > 0) {
-        amount *= 2;
-    }
+    // Используем коэффициент из DictController
+    const expCof = GetExpCof();
+    amount *= expCof;
     
     const currentLevelEl = document.getElementById("currentLevel");
     const progressBar = document.getElementById("SetTimeRange");
@@ -336,60 +346,30 @@ function buyUpgrade(upgradeId) {
     upgrade.level++;
     upgrade.price = Math.floor(upgrade.basePrice * Math.pow(1.5, upgrade.level));
     
-    const upgradeElement = document.getElementById(upgradeId);
-    if (upgradeElement) {
-        const priceElement = upgradeElement.querySelector(".price");
-        if (priceElement) {
-            priceElement.innerText = `Ł${upgrade.price}`;
-        }
-        
-        // Обновление уровня улучшения в описании
-        const descElement = upgradeElement.querySelector(".upgrade-info p");
-        if (descElement && descElement.dataset.lang) {
-            const baseDesc = TRANSLATIONS[UI_STATE.currentLang][descElement.dataset.lang];
-            descElement.innerText = `${baseDesc} (Уровень: ${upgrade.level})`;
-        } else if (descElement) {
-            const baseText = descElement.innerText.split('(')[0].trim();
-            descElement.innerText = `${baseText} (Уровень: ${upgrade.level})`;
-        }
-    }
+    // Сохраняем уровень апгрейда в DictController
+    SetUpgradeLevel(upgradeId, upgrade.level);
     
-    applyUpgradeEffect(upgradeId);
+    updateUpgradeElement(upgradeId);
     
     playSfx();
     saveUpgradesToStorage();
     return true;
 }
 
-function applyUpgradeEffect(upgradeId) {
-    switch(upgradeId) {
-        case 'upgrade_1':
-            break;
-            
-        case 'upgrade_2':
-            break;
-            
-        case 'upgrade_3':
-            if (!UI_STATE.upgrades.upgrade_3.active) {
-                UI_STATE.upgrades.upgrade_3.active = true;
-                UI_STATE.autoClickInterval = setInterval(() => {
-                    addMoney(1);
-                }, 1000);
-            }
-            break;
-            
-        case 'upgrade_no_caps':
-            DictController.DeleteChar('CAPS_LOCK_MODE');
-            break;
-            
-        case 'upgrade_more_digits':
-            DictController.AddLetter('0-9');
-            break;
-            
-        case 'upgrade_no_symbols':
-            DictController.DeleteChar('SPECIAL_SYMBOLS');
-            break;
+// Функция для автоклика
+function startAutoClick() {
+    if (UI_STATE.autoClickInterval) {
+        clearInterval(UI_STATE.autoClickInterval);
     }
+    
+    const interval = GetAutoClickerInterval();
+    if (interval === 0) return;
+    
+    UI_STATE.autoClickInterval = setInterval(() => {
+        const moneyCof = GetMoneyCof();
+        const amount = 1 * moneyCof;
+        addMoney(amount);
+    }, interval);
 }
 
 export function GetVolume() {
@@ -509,7 +489,6 @@ export function ChangeBackgroundMusic(index = 0) {
     return false;
 }
 
-
 export function InitAudio() {
     const audio = document.getElementById('bgMusic');
     if (audio) {
@@ -526,7 +505,7 @@ export function GetIndexMus() {
     return UI_STATE.musicIndex;
 }
 
-function loadGameData() {  // CHANGED!!! New function
+function loadGameData() {
     const savedMoney = GetValue("game_money");
     if (savedMoney !== null) {
         ChangeAmountOfValute(savedMoney);
@@ -596,5 +575,3 @@ function closeStartScreen() {
 }
 
 startBtn.addEventListener("click", closeStartScreen);
-//ChangeBackgroundMusic(1);
-//ChangeBacgroundImg(3);

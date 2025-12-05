@@ -613,3 +613,114 @@ input[type=range]::-webkit-slider-thumb:hover {
 .upgrade-item {
     animation: fadeIn 0.5s ease-out;
 }
+
+/* Добавьте эти стили в конец файла styles.css */
+
+/* Стили для букв в игровой зоне */
+#lettersZone {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.letter {
+    position: absolute;
+    font-size: 40px;
+    font-weight: 800;
+    color: #2c3e50;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7));
+    border: 2px solid rgba(52, 152, 219, 0.5);
+    border-radius: 15px;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+    z-index: 100;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+    animation: floatLetter 3s ease-in-out infinite;
+}
+
+@keyframes floatLetter {
+    0% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-10px) rotate(5deg); }
+    100% { transform: translateY(0) rotate(0deg); }
+}
+
+.letter:hover {
+    transform: scale(1.1) rotate(10deg);
+    background: linear-gradient(135deg, rgba(52, 152, 219, 0.9), rgba(41, 128, 185, 0.9));
+    color: white;
+    border-color: rgba(255, 255, 255, 0.8);
+    box-shadow: 0 12px 30px rgba(52, 152, 219, 0.4);
+}
+
+.letter.correct {
+    animation: correctAnimation 0.5s ease-out forwards;
+    pointer-events: none;
+}
+
+@keyframes correctAnimation {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.5); opacity: 0.7; }
+    100% { transform: scale(0.5); opacity: 0; }
+}
+
+/* Стили для купленных улучшений */
+.upgrade-item.purchased {
+    border: 2px solid #4CAF50;
+    background: linear-gradient(135deg, rgba(76, 175, 80, 0.15), rgba(76, 175, 80, 0.05));
+}
+
+.upgrade-item.purchased .buy-btn {
+    background: linear-gradient(135deg, #888, #666);
+    cursor: default;
+}
+
+.upgrade-item.purchased .buy-btn:hover {
+    transform: none;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Индикатор активного автокликера */
+.auto-clicker-active {
+    position: relative;
+}
+
+.auto-clicker-active::after {
+    content: '⚡';
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #FFD700;
+    color: #333;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: pulse 1s infinite;
+}
+
+/* Анимация для получения денег */
+@keyframes moneyAnimation {
+    0% { transform: translateY(0) scale(1); opacity: 1; }
+    100% { transform: translateY(-50px) scale(1.5); opacity: 0; }
+}
+
+.money-popup {
+    position: absolute;
+    font-size: 20px;
+    font-weight: 800;
+    color: #FFD700;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    pointer-events: none;
+    animation: moneyAnimation 1.5s ease-out forwards;
+    z-index: 1000;
+}
