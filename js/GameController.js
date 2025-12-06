@@ -36,7 +36,7 @@ let passiveClickRunning = false;
 const BASE_SPAWN_DELAY = 2000;
 const MIN_SPAWN_DELAY = 200;
 const LETTER_LIFE = 3000;
-const LEVELS_PER_LOCATION = 5; // Меняем локацию каждые 5 уровней
+const LEVELS_PER_LOCATION = 5;
 
 function sleep(ms) {
   return new Promise((res) => setTimeout(res, ms));
@@ -135,8 +135,6 @@ async function virtualKeyHandled(key) {
   if (newLvl > oldLvl) {
     ChangeLevelOfVacabuular(newLvl);
 
-    // Логика: каждые 5 уровней меняем локацию
-    // Уровни 0-4: локация 0, уровни 5-9: локация 1, уровни 10-14: локация 2, и т.д.
     const targetLocationIndex = Math.min(Math.floor(newLvl / LEVELS_PER_LOCATION), 4);
     const currentLocationIndex = GetIndexLocation();
     
@@ -145,14 +143,11 @@ async function virtualKeyHandled(key) {
     if (targetLocationIndex > currentLocationIndex && targetLocationIndex < 5) {
       console.log(`Changing location to ${targetLocationIndex}`);
       
-      // Меняем фон (локацию)
       ChangeBacgroundImg(targetLocationIndex);
       
-      // Меняем музыку (обычно на ту же, что и локация)
       const targetMusicIndex = targetLocationIndex;
       ChangeBackgroundMusic(targetMusicIndex);
       
-      // Сохраняем изменения
       ChangeLoc(targetLocationIndex);
       ChangeMusic(targetMusicIndex);
       
@@ -164,7 +159,6 @@ async function virtualKeyHandled(key) {
     
     console.log(`+${moneyToAdd} money, +${expToAdd} exp, level: ${newLvl}`);
   } else {
-    // Если уровень не изменился, просто обновляем прогресс
     const percent = newExp % 100;
     ChangeShkalaOfVacabular(percent);
   }
@@ -241,7 +235,6 @@ document.addEventListener("keydown", async (e) => {
   await virtualKeyHandled(key);
 });
 
-// Функция для восстановления сохраненного состояния
 function restoreGameState() {
   const savedLocIndex = GetIndexLocation();
   const savedMusIndex = GetIndexMus();
@@ -250,25 +243,20 @@ function restoreGameState() {
   
   console.log(`Restoring game state: location=${savedLocIndex}, music=${savedMusIndex}, level=${lvl}`);
   
-  // Восстанавливаем фон и музыку
   ChangeBacgroundImg(savedLocIndex);
   ChangeBackgroundMusic(savedMusIndex);
   ChangeLevelOfVacabuular(lvl);
   console.warn(lvl + " level");
   ChangeAmountOfValute(GetMoney());
   
-  // Также восстанавливаем прогресс шкалы
   const percent = exp % 100;
   ChangeShkalaOfVacabular(percent);
 
-  //
 }
 
 function init() {
-  // Восстанавливаем сохраненное состояние
   restoreGameState();
   
-  // Запускаем игровые циклы
   startSpawnLoop();
   startPassiveClickLoop();
 }

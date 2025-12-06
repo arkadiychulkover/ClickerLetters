@@ -16,16 +16,15 @@ if (!Array.isArray(letters) || letters.length === 0) {
     AddValue("letters", letters);
 }
 
-// Обновляем массивы до 5 элементов
 let musics = GetValue("musics");
 if (!Array.isArray(musics) || musics.length === 0) {
-    musics = ["1", "2", "3", "4", "5"]; // 5 музыкальных треков
+    musics = ["1", "2", "3", "4", "5"];
     AddValue("musics", musics);
 }
 
 let locations = GetValue("locations");
 if (!Array.isArray(locations) || locations.length === 0) {
-    locations = ["1", "2", "3", "4", "5"]; // 5 локаций
+    locations = ["1", "2", "3", "4", "5"];
     AddValue("locations", locations);
 }
 
@@ -38,7 +37,6 @@ let expLvl = GetValue("expLvl") || 0;
 let curMusic = GetValue("curMusic") || musics[0];
 let curLocation = GetValue("curLocation") || locations[0];
 
-// ДОБАВЛЕНО: Загрузка апгрейдов из хранилища
 let upgrades = GetValue("upgrades") || {
     upgrade_1: { level: 0 },
     upgrade_2: { level: 0 },
@@ -48,7 +46,6 @@ let upgrades = GetValue("upgrades") || {
     upgrade_no_symbols: { level: 0 }
 };
 
-// ДОБАВЛЕНО: Функция для сохранения апгрейдов
 function saveUpgrades() {
     ChangeValue("upgrades", upgrades);
 }
@@ -140,7 +137,6 @@ export function ChangeExpLvl(value) {
     return false;
 }
 
-// ДОБАВЛЕНО: Функции для работы с апгрейдами
 export function GetUpgradeLevel(upgradeId) {
     return upgrades[upgradeId]?.level || 0;
 }
@@ -150,12 +146,9 @@ export function SetUpgradeLevel(upgradeId, level) {
         upgrades[upgradeId].level = level;
         saveUpgrades();
         
-        // Обновляем коэффициенты в зависимости от уровня апгрейда
         if (upgradeId === "upgrade_1") {
-            // Каждый уровень upgrade_1 дает +1 к множителю денег
             ChangeMoneyCof(1 + level);
         } else if (upgradeId === "upgrade_2") {
-            // Каждый уровень upgrade_2 дает x2 к опыту
             ChangeExpCof(level + 1);
         } else if (upgradeId === "upgrade_3" && level > 0) {
             upgrades[upgradeId].active = true;
