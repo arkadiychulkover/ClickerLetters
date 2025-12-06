@@ -420,7 +420,7 @@ function applyUpgradeEffect(upgradeId) {
             
         case 'upgrade_2':
             // Обновляем коэффициент опыта
-            const expCof = UI_STATE.upgrades.upgrade_2.level > 0 ? 2 : 1;
+            const expCof = UI_STATE.upgrades.upgrade_2.level + 1;
             ChangeExpCof(expCof);
             console.log(`Experience coefficient updated to: ${expCof}`);
             break;
