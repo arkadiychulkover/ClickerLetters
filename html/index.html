@@ -1,50 +1,124 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Game UI Interface</title>
+    <link rel="icon" href="data:,">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="./styles.css">
+    
+    <script type="module" src="../js/Ui.js" defer></script>
+    <script type="module" src="../js/GameController.js"></script>
+    <script type="module" src="../js/LocalStorageController.js"></script>
 </head>
 <body>
-    <div>
-        <div class="blob"></div>
-        <div class="blob"></div>
-        <div class="blob"></div>
-        <div class="blob"></div>
-        <div class="blob"></div>
-        <div class="blob"></div>
-        <div class="blob"></div>
-        <div class="blob"></div>
-        <div class="blob"></div>
-        <div class="blob"></div>
+
+    <div id="startScreen">
+        <button class="startBtn" id="startBtn">Старт</button>
     </div>
+    <div class="background-layer" id="bgLayer"></div>
 
-    <div class="UiContainer">
-        <div class="upperZonne">
-            <div class="Stats">
-                <div id=""></div>
+    <audio id="bgMusic" loop src="../assets/1.mp3"></audio>
+    <audio id="clickSound" src="../assets/Click.mp3"></audio> 
+
+    <div class="ui-layer">
+        
+        <header class="top-bar">
+            <div class="controls-left"></div>
+
+            <div id="GetMoney" class="coins-display">
+                <span id="moneyValue" class="coin-amount">Ł0</span>
             </div>
-            <input type="range" name="volume" id="VolumeSettings">
-            <select id="langChange" name="languages">
-                <option value="ENG">English</option>
-                <option value="RU">Русский</option>
-            </select>
-        </div>
 
-        <div class="middleZone">
-            <div id="upgradeZoneLeft"></div>
-            <div id="letersZone"></div>
-            <div id="upgradeZoneRight"></div>
-        </div>
+            <div class="controls-right">
+                <button id="OpenSettings" class="icon-btn">
+                    <i class="fa-solid fa-gear"></i>
+                </button>
+            </div>
+        </header>
 
-        <div class="bottomZone">
-            <div id="level">
-                <div id="zalivka">
-                    <div id="levelText">Level 1</div>
+        <div id="SettingsPanel" class="settings-panel hidden">
+            <h3 data-lang="settings_title">Настройки</h3>
+            
+            <div class="settings-group">
+                <p data-lang="lang_label">Язык</p>
+                <div class="lang-buttons">
+                    <button class="lang-btn active" data-target="RU">RU</button>
+                    <button class="lang-btn" data-target="EN">EN</button>
+                    <button class="lang-btn" data-target="UA">UA</button>
                 </div>
             </div>
+
+            <div class="settings-group">
+                <p data-lang="music_vol">Музыка</p>
+                <input type="range" id="MusicSlider" min="0" max="100" value="50">
+            </div>
+
+            <div class="settings-group">
+                <p data-lang="sound_vol">Звуки</p>
+                <input type="range" id="SoundSlider" min="0" max="100" value="50">
+            </div>
+
+            <button id="CloseSettings" class="close-btn">OK</button>
         </div>
+
+        <main class="game-container">
+            
+            <aside id="ChangeLevelOfUpgrade" class="panel upgrades-panel">
+                <h2 class="panel-title" data-lang="upgrades_title">Улучшения</h2>
+                
+                <div class="upgrades-list">
+
+                <div class="upgrade-item" id="upgrade_1">
+                    <div class="upgrade-info">
+                        <h3 data-lang="upg1_title">Больше валюты</h3>
+                        <p data-lang="upg1_desc">Больше денег за нажатие</p>
+                    </div>
+                    <button class="buy-btn">
+                        <span class="price">Ł100</span>
+                    </button>
+                </div>
+
+                <div class="upgrade-item" id="upgrade_2">
+                    <div class="upgrade-info">
+                        <h3 data-lang="upg2_title">Опыт x2</h3>
+                        <p data-lang="upg2_desc">Ускоренная прокачка уровня</p>
+                    </div>
+                    <button class="buy-btn">
+                        <span class="price">Ł250</span>
+                    </button>
+                </div>
+
+                <div class="upgrade-item" id="upgrade_3">
+                <div class="upgrade-info">
+                    <h3 data-lang="upg3_title">Авто-клик</h3>
+                    <p data-lang="upg3_desc">Пассивный доход валюты</p>
+                </div>
+                <button class="buy-btn">
+                    <span class="price">Ł500</span>
+                </button>
+                </div>
+
+                </div>
+
+            </aside>
+
+            <section id="lettersZone" class="panel game-zone"> </section>
+        </main>
+
+        <footer class="bottom-bar-container">
+            <div class="currentLevel">Lvl <span id="InitAudio">1</span></div>
+            
+            <div class="progress-track">
+                <div id="SetTimeRange" class="progress-fill" style="width: 0%;"></div>
+                <span class="progress-text">0%</span>
+            </div>
+        </footer>
+
     </div>
+
 </body>
 </html>
