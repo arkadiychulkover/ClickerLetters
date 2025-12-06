@@ -406,7 +406,6 @@ function applyUpgradeEffect(upgradeId) {
         case 'upgrade_3':
             if (!UI_STATE.upgrades.upgrade_3.active && UI_STATE.upgrades.upgrade_3.level > 0) {
                 UI_STATE.upgrades.upgrade_3.active = true;
-                startAutoClick();
             }
             break;
     }
