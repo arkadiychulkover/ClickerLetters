@@ -150,7 +150,7 @@ function loadUpgradesFromStorage() {
 }
 
 
-function saveUpgradesToStorage() { // CHANGED!!! New function
+function saveUpgradesToStorage() {
     const out = {};
     Object.entries(UI_STATE.upgrades).forEach(([id, upgrade]) => {
         out[id] = {
@@ -161,18 +161,18 @@ function saveUpgradesToStorage() { // CHANGED!!! New function
     ChangeValue("game_upgrades", out);
 }
 
-function saveLanguageToStorage() { // CHANGED!!! New function
+function saveLanguageToStorage() {
     ChangeValue("game_language", UI_STATE.currentLang);
 }
 
-function loadLanguageFromStorage() {  // CHANGED!!! New function
+function loadLanguageFromStorage() {
     const savedLang = GetValue("game_language");
     if (savedLang && TRANSLATIONS[savedLang]) {
         UI_STATE.currentLang = savedLang;
     }
 }
 
-function updateUpgradeElement(upgradeId) { // CHANGED!!! New function
+function updateUpgradeElement(upgradeId) {
     const upgrade = UI_STATE.upgrades[upgradeId];
     const el = document.getElementById(upgradeId);
     if (!el) return;
@@ -197,24 +197,21 @@ function updateUpgradeElement(upgradeId) { // CHANGED!!! New function
     }
 }
 
-function updateUpgradesUI() { // CHANGED!!! New function
+function updateUpgradesUI() { 
     Object.keys(UI_STATE.upgrades).forEach(upgradeId => {
         updateUpgradeElement(upgradeId);
     });
 }
 
 function initListeners() {
-    // Открытие настроек
     document.getElementById("OpenSettings").onclick = () => {
         document.getElementById("SettingsPanel").classList.remove("hidden");
     };
     
-    // Закрытие настроек
     document.getElementById("CloseSettings").onclick = () => {
         document.getElementById("SettingsPanel").classList.add("hidden");
     };
 
-    // Управление музыкой
     const musicSlider = document.getElementById("MusicSlider");
     musicSlider.value = musicVolume;
     musicSlider.oninput = (e) => {
@@ -222,7 +219,6 @@ function initListeners() {
         document.getElementById("bgMusic").volume = musicVolume / 100;
     };
 
-    // Управление звуками
     const soundSlider = document.getElementById("SoundSlider");
     soundSlider.value = soundVolume;
     soundSlider.oninput = (e) => {
@@ -230,7 +226,6 @@ function initListeners() {
         document.getElementById("clickSound").volume = soundVolume / 100;
     };
     
-    // Кнопки языков
     const langBtns = document.querySelectorAll(".lang-btn");
     langBtns.forEach(btn => {
         btn.onclick = () => {
@@ -239,14 +234,11 @@ function initListeners() {
             applyLanguage(btn.getAttribute("data-target"));
         };
     });
-
-    // Клик по основной кнопке для заработка
     document.getElementById("GetMoney").onclick = () => {
         addMoney(1);
         playSfx();
     };
 
-    // Обработчик покупки улучшений
     document.getElementById("ChangeLevelOfUpgrade").onclick = (e) => {
         const btn = e.target.closest('.buy-btn');
         if (btn) {
@@ -257,7 +249,6 @@ function initListeners() {
         }
     };
 
-    // Автовоспроизведение музыки при первом взаимодействии
     document.body.addEventListener('click', () => {
         const music = document.getElementById("bgMusic");
         if (music && music.paused) {
@@ -277,7 +268,7 @@ function applyLanguage(lang) {
         }
     });
 
-    updateUpgradesUI();  // CHANGED!!! New string
+    updateUpgradesUI();
     
     saveLanguageToStorage();
 }
@@ -294,14 +285,12 @@ function addMoney(amount) {
     const el = document.getElementById("moneyValue");
     if (el) {
         let currentMoney = parseInt(el.innerText.replace('Ł', '')) || 0;
-        // Учет улучшения для увеличения дохода
         if (UI_STATE.upgrades.upgrade_1.level > 0) {
             amount *= (1 + UI_STATE.upgrades.upgrade_1.level);
         }
         currentMoney += amount;
         el.innerText = `Ł${currentMoney}`;
         
-        // Увеличение опыта при клике
         addExperience(1);
         return true;
     }
@@ -309,7 +298,6 @@ function addMoney(amount) {
 }
 
 function addExperience(amount) {
-    // Учет улучшения для ускорения прокачки
     if (UI_STATE.upgrades.upgrade_2.level > 0) {
         amount *= 2;
     }
@@ -343,17 +331,14 @@ function buyUpgrade(upgradeId) {
     const currentMoney = parseInt(moneyEl.innerText.replace('Ł', ''));
     
     if (currentMoney < upgrade.price) {
-        // Анимация мигания при недостатке денег
         moneyEl.classList.add('moneyFlash');
         
-        // Удаляем класс после завершения анимации
         const removeFlash = () => {
             moneyEl.classList.remove('moneyFlash');
             moneyEl.removeEventListener('animationend', removeFlash);
         };
         moneyEl.addEventListener('animationend', removeFlash, { once: true });
         
-        // Вибро-фидбек (если поддерживается)
         if (navigator.vibrate) {
             navigator.vibrate([100, 50, 100]);
         }
@@ -370,7 +355,6 @@ function buyUpgrade(upgradeId) {
     
     const upgradeElement = document.getElementById(upgradeId);
     if (upgradeElement) {
-        // Анимация успешной покупки
         upgradeElement.classList.add('purchase-success');
         setTimeout(() => {
             upgradeElement.classList.remove('purchase-success');
@@ -378,7 +362,6 @@ function buyUpgrade(upgradeId) {
         
         const priceElement = upgradeElement.querySelector(".price");
         if (priceElement) {
-            // Анимация изменения цены
             priceElement.style.transform = 'scale(1.2)';
             priceElement.style.color = '#2ecc71';
             priceElement.innerText = `Ł${upgrade.price}`;
@@ -389,7 +372,6 @@ function buyUpgrade(upgradeId) {
             }, 300);
         }
         
-        // Обновление уровня улучшения в описании
         const descElement = upgradeElement.querySelector(".upgrade-info p");
         if (descElement && descElement.dataset.lang) {
             const baseDesc = TRANSLATIONS[UI_STATE.currentLang][descElement.dataset.lang];
@@ -399,7 +381,6 @@ function buyUpgrade(upgradeId) {
             descElement.innerText = `${baseText} (Уровень: ${upgrade.level})`;
         }
         
-        // Для улучшений, которые можно купить только один раз
         if ((upgradeId === "upgrade_no_caps" ||
              upgradeId === "upgrade_more_digits" || 
              upgradeId === "upgrade_no_symbols") && 
@@ -414,13 +395,11 @@ function buyUpgrade(upgradeId) {
         }
     }
     
-    // Обновляем коэффициенты через DictController
     SetUpgradeLevel(upgradeId, upgrade.level);
     
     playSfx();
     saveUpgradesToStorage();
     
-    // Анимация потраченных денег
     moneyEl.style.transform = 'scale(0.95)';
     setTimeout(() => {
         moneyEl.style.transform = 'scale(1)';
@@ -429,26 +408,21 @@ function buyUpgrade(upgradeId) {
     return true;
 }
 
-function applyUpgradeEffect(upgradeId) {
+function applyUpgradeEffect(upgradeId) {  // CHANGED!!! 
     switch(upgradeId) {
         case 'upgrade_1':
-            // Обновляем коэффициент денег
             const moneyCof = 1 + UI_STATE.upgrades.upgrade_1.level;
             ChangeMoneyCof(moneyCof);
             console.log(`Money coefficient updated to: ${moneyCof}`);
             break;
             
         case 'upgrade_2':
-            // Обновляем коэффициент опыта
-            const expCof = UI_STATE.upgrades.upgrade_2.level > 0 ? 2 : 1;
-            ChangeExpCof(expCof);
-            console.log(`Experience coefficient updated to: ${expCof}`);
+            console.log(`Upgrade 2 level: ${UI_STATE.upgrades.upgrade_2.level}`); 
             break;
             
         case 'upgrade_3':
-            if (!UI_STATE.upgrades.upgrade_3.active && UI_STATE.upgrades.upgrade_3.level > 0) {
+            if (UI_STATE.upgrades.upgrade_3.level > 0) {
                 UI_STATE.upgrades.upgrade_3.active = true;
-                startAutoClick();
             }
             break;
             
@@ -600,7 +574,7 @@ export function GetIndexMus() {
     return UI_STATE.musicIndex;
 }
 
-function loadGameData() {  // CHANGED!!! New function
+function loadGameData() {
     const savedMoney = GetValue("game_money");
     if (savedMoney !== null) {
         ChangeAmountOfValute(savedMoney);
@@ -629,7 +603,6 @@ document.addEventListener('DOMContentLoaded', () => {
     } 
     catch (error) {
         console.error("Error loading saved state:", error);
-        // Устанавливаем значения по умолчанию
     }
     
     InitAudio();
@@ -670,5 +643,3 @@ function closeStartScreen() {
 }
 
 startBtn.addEventListener("click", closeStartScreen);
-//ChangeBackgroundMusic(1);
-//ChangeBacgroundImg(3);
