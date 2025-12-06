@@ -34,7 +34,7 @@ let spawnLoopRunning = false;
 let passiveClickRunning = false;
 
 const BASE_SPAWN_DELAY = 2000;
-const MIN_SPAWN_DELAY = 200;
+const MIN_SPAWN_DELAY = 100;
 const LETTER_LIFE = 3000;
 const LEVELS_PER_LOCATION = 5;
 
@@ -170,23 +170,25 @@ async function startSpawnLoop() {
 
   try {
     while (spawnLoopRunning) {
-      const dict = GetDict();
 
+      const dict = GetDict();
       if (!Array.isArray(dict) || dict.length === 0) {
-        await sleep(1000);
+        await sleep(500);
         continue;
       }
 
       const letter = GetRandomDictLetter();
-
       if (letter) spawnLetter(letter);
 
-      const level = GetExpLvl();
-      const speedFactor = 1 + level / 5;
-      let delay = Math.max(MIN_SPAWN_DELAY, BASE_SPAWN_DELAY / speedFactor);
+      const currentLevel = Math.floor(GetExpLvl() / 100);
 
-      delay = Math.floor(delay * (0.6 + Math.random() * 0.8));
-      await sleep(delay / 10);
+      let delay = LETTER_LIFE / (1 + currentLevel * 0.5);
+
+      delay = Math.max(delay, MIN_SPAWN_DELAY);
+
+      delay *= 0.9 + Math.random() * 0.2;
+
+      await sleep(delay);
     }
   } finally {
     spawnLoopRunning = false;
