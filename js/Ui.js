@@ -10,7 +10,8 @@ import {
     SetUpgradeLevel,
     IsUpgradeActive,
     DeleteChar,
-    AddLetter
+    AddLetter,
+    GetDict
 } from "./DictController.js";
 import { GetValue, ChangeValue, AddValue } from "./LocalStorageController.js";
 
@@ -26,13 +27,7 @@ const TRANSLATIONS = {
         upg2_title: "Опыт x2", 
         upg2_desc: "Ускоренная прокачка уровня",
         upg3_title: "Авто-клик", 
-        upg3_desc: "Пассивный доход валюты",
-        upg4_title: "Удалить капслок",
-        upg4_desc: "Удаляет Заглавные буквы с каждым уровнем",
-        upg5_title: "Добавить цифры",
-        upg5_desc: "Добавляет цифры с каждым уровнем",
-        upg6_title: "Удалить спецсимволы",
-        upg6_desc: "Удаляет спецсимволы с каждым уровнем"
+        upg3_desc: "Пассивный доход валюты"
     },
     EN: 
     {
@@ -49,16 +44,7 @@ const TRANSLATIONS = {
         upg2_desc: "Faster level up",
 
         upg3_title: "Auto-click", 
-        upg3_desc: "Passive income",
-
-        upg4_title: "Remove Caps Lock",
-        upg4_desc: "Removes uppercase letters every level",
-
-        upg5_title: "Add Numbers",
-        upg5_desc: "Adds numbers every level",
-
-        upg6_title: "Remove Special Characters",
-        upg6_desc: "Removes special characters every level"
+        upg3_desc: "Passive income"
     },
     UA: 
     {
@@ -78,13 +64,7 @@ const TRANSLATIONS = {
         upg3_desc: "Пасивний дохід",
 
         upg4_title: "Прибрати капслок",
-        upg4_desc: "Зменшує кількість великих букв з кожним рівнем",
-
-        upg5_title: "Додати цифри",
-        upg5_desc: "Додає цифри з кожним рівнем",
-
-        upg6_title: "Прибрати спецсимволи",
-        upg6_desc: "Прибирає спецсимволи з кожним рівнем"
+        upg4_desc: "Зменшує кількість великих букв з кожним рівнем"
     }
 };
 
@@ -122,20 +102,33 @@ function calcPrice(basePrice, level) {
 }
 
 function loadUpgradesFromStorage() {
-    // Загружаем из DictController
-    Object.keys(UI_STATE.upgrades).forEach(upgradeId => {
-        const level = GetUpgradeLevel(upgradeId);
-        if (level > 0) {
-            UI_STATE.upgrades[upgradeId].level = level;
-            UI_STATE.upgrades[upgradeId].price = calcPrice(
-                UI_STATE.upgrades[upgradeId].basePrice, 
-                level
-            );
+    const saved = GetValue("game_upgrades");
+    if (!saved || typeof saved !== "object") {
+        console.log("No saved upgrades found");
+        return;
+    }
+    
+    console.log("Loading upgrades from storage:", saved);
+    
+    Object.keys(saved).forEach(upgradeId => {
+        const target = UI_STATE.upgrades[upgradeId];
+        const source = saved[upgradeId];
+        
+        if (target && source) {
+            target.level = source.level || 0;
+            target.price = calcPrice(target.basePrice, target.level);
+            
+            console.log(`Loaded upgrade ${upgradeId}: level=${target.level}, price=${target.price}`);
+            
+            if (target.level > 0) {
+                applyUpgradeEffect(upgradeId);
+            }
         }
     });
     
     updateUpgradesUI();
 }
+
 
 function saveUpgradesToStorage() { // CHANGED!!! New function
     const out = {};
@@ -327,7 +320,7 @@ function buyUpgrade(upgradeId) {
     if (!upgrade) return false;
     
     const moneyEl = document.getElementById("moneyValue");
-    const currentMoney = parseInt(moneyEl.innerText.replace('Ł', '')) || 0;
+    const currentMoney = parseInt(moneyEl.innerText.replace('Ł', ''));
     
     if (currentMoney < upgrade.price) {
         // Анимация мигания при недостатке денег
@@ -387,7 +380,7 @@ function buyUpgrade(upgradeId) {
         }
         
         // Для улучшений, которые можно купить только один раз
-        if ((upgradeId === "upgrade_no_caps" || 
+        if ((upgradeId === "upgrade_no_caps" ||
              upgradeId === "upgrade_more_digits" || 
              upgradeId === "upgrade_no_symbols") && 
             upgrade.level >= 1) {
@@ -438,18 +431,6 @@ function applyUpgradeEffect(upgradeId) {
                 startAutoClick();
             }
             break;
-            
-        case 'upgrade_no_caps':
-            DeleteChar('CAPS_LOCK_MODE');
-            break;
-            
-        case 'upgrade_more_digits':
-            AddLetter('0-9');
-            break;
-            
-        case 'upgrade_no_symbols':
-            DeleteChar('SPECIAL_SYMBOLS');
-            break;
     }
 }
 
@@ -471,7 +452,8 @@ export function GetLevelOfUpgrade(id) {
 }
 
 export function ChangeLevelOfVacabuular(lv) {
-    const el = document.getElementById('currentLevel');
+    const el = document.getElementById('InitAudio');
+    console.warn(el + "Level element" + "level" + lv)
     if (el) {
         el.innerText = lv;
         return true;

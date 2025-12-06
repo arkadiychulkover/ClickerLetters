@@ -36,7 +36,7 @@ body {
     padding: 20px;
 }
 
-.panel, .coins-display, .icon-btn, .lang-btn, .level-badge, .info-badge {
+.panel, .coins-display, .icon-btn, .lang-btn, .currentLevel, .info-badge {
     background: rgba(255, 255, 255, 0.85);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
@@ -320,7 +320,7 @@ body {
     gap: 20px;
 }
 
-.level-badge {
+.currentLevel {
     padding: 10px 20px;
     border-radius: 25px;
     font-weight: 800;

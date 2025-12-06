@@ -120,7 +120,7 @@ async function virtualKeyHandled(key) {
   const moneyToAdd = Math.floor(1 * moneyCof) + 10;
   console.warn(moneyToAdd + "money to add");
   const expToAdd = Math.floor(1 * expCof);
-  console.warn(moneyToAdd + "exp to add");
+  console.warn(expToAdd + "exp to add");
   const oldExp = GetExpLvl();
   const newExp = oldExp + expToAdd;
   const newMoney = GetMoney() + moneyToAdd;
@@ -210,11 +210,6 @@ async function startPassiveClickLoop() {
     
     while (passiveClickRunning) {
 
-        if (!gameStarted) {
-            await sleep(100);
-            continue;
-        }
-
         const key = getRandomActiveLetter();
         if (key) {
             document.dispatchEvent(makeKeyboardEvent(key));
@@ -259,6 +254,7 @@ function restoreGameState() {
   ChangeBacgroundImg(savedLocIndex);
   ChangeBackgroundMusic(savedMusIndex);
   ChangeLevelOfVacabuular(lvl);
+  console.warn(lvl + " level");
   ChangeAmountOfValute(GetMoney());
   
   // Также восстанавливаем прогресс шкалы
